@@ -15,7 +15,18 @@ const getPolarAuthorization = () => {
   ).toString("base64");
 };
 
+const unless = function (path, middleware) {
+  return function (req, res, next) {
+    if (path === req.path) {
+      return next();
+    } else {
+      return middleware(req, res, next);
+    }
+  };
+};
+
 module.exports = {
   validRequest,
   getPolarAuthorization,
+  unless,
 };
