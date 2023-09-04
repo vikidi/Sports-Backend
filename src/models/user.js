@@ -4,6 +4,7 @@ const { Schema, model } = mongoose;
 const userSchema = new Schema({
   _id: { type: String, required: true },
   polarId: Number,
+  polarMemberId: String,
   polarToken: String,
   polarTokenCreatedAt: Date,
   polarTokenExpiresAt: Date,

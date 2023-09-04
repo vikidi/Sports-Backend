@@ -3,6 +3,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const { auth } = require("express-oauth2-jwt-bearer");
 const morgan = require("morgan");
+const fileUpload = require("express-fileupload");
 const { unless } = require("./utils");
 
 if (process.env.NODE_ENV !== "production") {
@@ -21,6 +22,8 @@ if (process.env.NODE_ENV === "development") {
 
 app.use(helmet());
 app.use(cors());
+
+app.use(fileUpload());
 app.use(express.json({ limit: "15mb" }));
 
 require("./database");

@@ -1,6 +1,24 @@
 const axios = require("axios");
 const { validationResult } = require("express-validator");
 
+const roundTo = (n, digits) => {
+  let negative = false;
+  if (digits === undefined) {
+    digits = 0;
+  }
+  if (n < 0) {
+    negative = true;
+    n = n * -1;
+  }
+  let multiplicator = Math.pow(10, digits);
+  n = parseFloat((n * multiplicator).toFixed(11));
+  n = (Math.round(n) / multiplicator).toFixed(digits);
+  if (negative) {
+    n = (n * -1).toFixed(digits);
+  }
+  return n;
+};
+
 const validRequest = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -26,6 +44,7 @@ const unless = function (path, middleware) {
 };
 
 module.exports = {
+  roundTo,
   validRequest,
   getPolarAuthorization,
   unless,

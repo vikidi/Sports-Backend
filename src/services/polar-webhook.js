@@ -38,6 +38,37 @@ axios
           });
         })
         .catch((err) => console.log(err.message));
+    } else if (process.env.NODE_ENV === "development") {
+      Connection.findById("polar-webhook")
+        .then((con) => {
+          if (con.url === `${process.env.API_URL}/connection/polar-webhook`)
+            return;
+
+          axios.patch(
+            `https://www.polaraccesslink.com/v3/webhooks/${con.externalId}`,
+            {
+              events: ["EXERCISE"],
+              url: `${process.env.API_URL}/connection/polar-webhook`,
+            },
+            {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                Authorization: `Basic ${getPolarAuthorization()}`,
+              },
+            }
+          );
+        })
+        .then((res) => {
+          if (!res) return;
+
+          const newConnection = res.data.data;
+          Connection.findByIdAndUpdate("polar-webhook", {
+            events: newConnection.events,
+            url: newConnection.url,
+          });
+        })
+        .catch((err) => console.log(err.message));
     }
   })
   .catch((err) => console.log(err.message));

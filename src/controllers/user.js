@@ -52,11 +52,33 @@ const polarToken = (req, res) => {
       let t = new Date();
       t.setSeconds(t.getSeconds() + result.data.expires_in);
 
+      return User.findByIdAndUpdate(
+        req.user.id,
+        {
+          polarId: result.data.x_user_id,
+          polarToken: result.data.access_token,
+          polarTokenCreatedAt: Date.now(),
+          polarTokenExpiresAt: t,
+        },
+        { returnDocument: "after" }
+      );
+    })
+    .then((user) => {
+      return axios.post(
+        "https://www.polaraccesslink.com/v3/users",
+        { "member-id": `${user.polarId}` },
+        {
+          headers: {
+            Authorization: `Bearer ${user.polarToken}`,
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+        }
+      );
+    })
+    .then((resp) => {
       return User.findByIdAndUpdate(req.user.id, {
-        polarId: result.data.x_user_id,
-        polarToken: result.data.access_token,
-        polarTokenCreatedAt: Date.now(),
-        polarTokenExpiresAt: t,
+        polarMemberId: resp.data["member-id"],
       });
     })
     .then(() => res.status(200).json())

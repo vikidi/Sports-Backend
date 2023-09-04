@@ -15,13 +15,17 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
     "express-oauth2-jwt-bearer": "^1.5.0",
     "express-validator": "^7.0.1",
+    "fs": "^0.0.1-security",
     "helmet": "^7.0.0",
     "http": "^0.0.1-security",
     "mongodb": "^6.0.0",
     "mongoose": "^7.5.0",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "tcx-js": "^1.0.1",
+    "temp": "^0.9.4"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",
