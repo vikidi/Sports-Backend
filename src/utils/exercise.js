@@ -37,6 +37,7 @@ const createNew = (userId, dataBuffer) => {
 
         Exercise.create({
           user: userId,
+          group: null,
           sport: activity.sport,
           startingEpoch: activity.startingEpoch,
           parsedDate: activity.activityId,

@@ -3,6 +3,7 @@ const { Schema, model } = mongoose;
 
 const exerciseSchema = new Schema({
   user: { type: String, ref: "User" },
+  group: { type: Schema.Types.ObjectId, ref: "Group" },
   sport: String,
   startingEpoch: Number,
   parsedDate: Date,
@@ -28,6 +29,12 @@ const exerciseSchema = new Schema({
       epochMs: Number,
     },
   ],
+  createdAt: {
+    type: Date,
+    required: true,
+    default: () => Date.now(),
+    immutable: true,
+  },
 });
 
 const Exercise = model("Exercise", exerciseSchema);

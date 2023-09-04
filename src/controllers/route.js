@@ -1,11 +1,14 @@
-const Exercise = require("../models/exercise");
-
-const { createNew } = require("../utils/exercise");
+const Route = require("../models/route");
 
 const create = (req, res) => {
-  createNew(req.user.id, req.files.exercise.data)
-    .then(() => {
-      res.sendStatus(200);
+  Route.create({
+    user: req.user.id,
+    groups: [],
+    defaultGroup: null,
+  })
+    .then((data) => {
+      const { user, ...newData } = data._doc;
+      return res.json(newData);
     })
     .catch((err) => {
       res.status(err.status ?? 500).json({ errors: [err.message] });
@@ -13,10 +16,8 @@ const create = (req, res) => {
 };
 
 const myList = (req, res) => {
-  Exercise.find(
-    { user: req.user.id },
-    "_id sport parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence"
-  )
+  Route.find({ user: req.user.id }, "groups defaultGroup name description")
+    .populate("groups", "exercises name description")
     .exec()
     .then((data) => {
       return res.json(data);
