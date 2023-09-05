@@ -18,11 +18,13 @@ const createNew = (userId, dataBuffer) => {
         const calcStart = {
           heartRateCount: 0,
           cadenceCount: 0,
+          wattsCount: 0,
         };
 
         const reduceValues = activity.trackpoints.reduce((total, next) => {
           total.heartRateCount += next["heart_rate_bpm"];
           total.cadenceCount += next.cadence;
+          if (next.watts) total.wattsCount += next.watts;
           return total;
         }, calcStart);
 
@@ -43,6 +45,10 @@ const createNew = (userId, dataBuffer) => {
           parsedDate: activity.activityId,
           averageHeartRate: Math.round(reduceValues.heartRateCount / tpCount),
           averageCadence: Math.round(reduceValues.cadenceCount / tpCount),
+          averageWatts:
+            reduceValues.wattsCount !== 0
+              ? Math.round(reduceValues.wattsCount / tpCount)
+              : null,
           averagePace: roundTo(
             elapsedSeconds / 60 / (distanceMeters / 1000),
             2
@@ -71,7 +77,6 @@ const createNew = (userId, dataBuffer) => {
             return resolve();
           })
           .catch((err) => {
-            console.log(err);
             return reject(Error({ status: 500, message: "Server failure." }));
           });
       } else {

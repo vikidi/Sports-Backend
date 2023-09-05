@@ -10,6 +10,7 @@ const exerciseSchema = new Schema({
   averageHeartRate: Number,
   averagePace: Number,
   averageCadence: Number,
+  averageWatts: Number,
   distanceMeters: Number,
   elapsedSec: Number,
   trackPoints: [

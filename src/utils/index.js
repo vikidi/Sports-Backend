@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { validationResult } = require("express-validator");
+const { accessSync } = require("fs");
 
 const roundTo = (n, digits) => {
   let negative = false;
@@ -33,8 +34,8 @@ const getPolarAuthorization = () => {
   ).toString("base64");
 };
 
-const unless = function (path, middleware) {
-  return function (req, res, next) {
+const unless = (path, middleware) => {
+  return (req, res, next) => {
     if (path === req.path) {
       return next();
     } else {

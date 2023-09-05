@@ -27,7 +27,23 @@ const myList = (req, res) => {
     });
 };
 
+const getOne = (req, res) => {
+  Route.findById(req.params.id, "user groups defaultGroup name description")
+    .populate("groups", "exercises name description")
+    .then((data) => {
+      if (!data) return res.sendStatus(404);
+      if (data.user !== req.user.id) return res.sendStatus(403);
+
+      const { user, ...sendData } = data._doc;
+      return res.json(sendData);
+    })
+    .catch((err) => {
+      res.status(err.status ?? 500).json({ errors: [err.message] });
+    });
+};
+
 module.exports = {
   create,
   myList,
+  getOne,
 };
