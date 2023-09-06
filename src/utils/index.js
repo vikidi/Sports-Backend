@@ -1,6 +1,4 @@
-const axios = require("axios");
 const { validationResult } = require("express-validator");
-const { accessSync } = require("fs");
 
 const roundTo = (n, digits) => {
   let negative = false;

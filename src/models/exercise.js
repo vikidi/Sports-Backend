@@ -15,19 +15,11 @@ const exerciseSchema = new Schema({
   elapsedSec: Number,
   trackPoints: [
     {
-      seq: Number,
-      time: Date,
+      _id: false,
       latitude: Number,
       longitude: Number,
       altitudeMeters: Number,
-      distanceMeters: Number,
-      heartRateBpm: Number,
-      speed: Number,
-      cadence: Number,
-      watts: Number,
       elapsedSec: Number,
-      elapsedhhmmss: String,
-      epochMs: Number,
     },
   ],
   createdAt: {

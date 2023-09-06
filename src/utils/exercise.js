@@ -15,6 +15,8 @@ const createNew = (userId, dataBuffer) => {
         const parser = new tcx.Parser(info.path);
         const activity = parser.activity;
 
+        // TODO: Max and min values?
+
         const calcStart = {
           heartRateCount: 0,
           cadenceCount: 0,
@@ -57,26 +59,17 @@ const createNew = (userId, dataBuffer) => {
           elapsedSec: elapsedSeconds,
           trackPoints: activity.trackpoints.map((tp) => {
             return {
-              seq: tp.seq,
-              time: tp.time,
               latitude: tp.latitude,
               longitude: tp.longitude,
               altitudeMeters: tp["altitude_meters"],
-              distanceMeters: tp["distance_meters"],
-              heartRateBpm: tp["heart_rate_bpm"],
-              speed: tp.speed,
-              cadence: tp.cadence,
-              watts: tp.watts,
               elapsedSec: tp["elapsed_sec"],
-              elapsedhhmmss: tp["elapsed_hhmmss"],
-              epochMs: tp["epoch_ms"],
             };
           }),
         })
           .then(() => {
             return resolve();
           })
-          .catch((err) => {
+          .catch(() => {
             return reject(Error({ status: 500, message: "Server failure." }));
           });
       } else {
