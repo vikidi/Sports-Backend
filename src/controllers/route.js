@@ -40,7 +40,14 @@ const getOne = (req, res) => {
     req.params.id,
     "user groups defaultGroup name description useAutomaticGrouping"
   )
-    .populate("groups", "exercises name description")
+    .populate({
+      path: "groups",
+      select: "exercises name description",
+      populate: {
+        path: "exercises",
+        select: "elapsedSec averagePace averageHeartRate",
+      },
+    })
     .populate({
       path: "defaultGroup",
       select: "exercises name description",
