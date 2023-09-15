@@ -45,7 +45,7 @@ const getOne = (req, res) => {
       select: "exercises name description",
       populate: {
         path: "exercises",
-        select: "elapsedSec averagePace averageHeartRate",
+        select: "startingEpoch elapsedSec averagePace averageHeartRate",
       },
     })
     .populate({
