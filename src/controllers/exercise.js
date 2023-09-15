@@ -29,7 +29,7 @@ const myList = (req, res) => {
 const getOne = (req, res) => {
   Exercise.findById(
     req.params.id,
-    "_id user group sport startingEpoch parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence averageWatts"
+    "_id user group sport startingEpoch parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence averageWatts trackPoints"
   )
     .then((data) => {
       if (!data) return res.sendStatus(404);
