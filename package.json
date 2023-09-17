@@ -24,7 +24,7 @@
     "mongodb": "^6.0.0",
     "mongoose": "^7.5.0",
     "morgan": "^1.10.0",
-    "tcx-js": "^1.0.1",
+    "tcx-js": "github:vikidi/tcx-js",
     "temp": "^0.9.4"
   },
   "devDependencies": {

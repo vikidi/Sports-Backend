@@ -1,4 +1,5 @@
 const Exercise = require("../models/exercise");
+const Group = require("../models/group");
 
 const { createNew } = require("../utils/exercise");
 
@@ -43,8 +44,55 @@ const getOne = (req, res) => {
     });
 };
 
+const updateGroup = async (req, res) => {
+  try {
+    let exercise = await Exercise.findById(req.params.id, "_id user group");
+
+    if (!exercise) return res.sendStatus(404);
+    if (exercise.user !== req.user.id) return res.sendStatus(403);
+    if (exercise.group === req.body.newGroup) return res.sendStatus(200);
+
+    let newGroup;
+    if (req.body.newGroup && req.body.newGroup !== "") {
+      newGroup = await Group.findById(req.body.newGroup, "_id user exercises");
+
+      if (!newGroup) return res.sendStatus(404);
+      if (newGroup.user !== req.user.id) return res.sendStatus(403);
+    }
+
+    let oldGroup;
+    if (exercise.group && exercise.group !== "") {
+      oldGroup = await Group.findById(exercise.group, "_id exercises");
+    }
+
+    exercise.group = req.body.newGroup !== "" ? req.body.newGroup : null;
+    await exercise.save();
+
+    if (newGroup) {
+      newGroup.exercises = [...newGroup.exercises, exercise._id];
+      await newGroup.save();
+    }
+
+    if (oldGroup) {
+      const index = oldGroup.exercises.indexOf(exercise._id);
+      if (index > -1) {
+        let newArray = [...oldGroup.exercises];
+        newArray.splice(index, 1);
+        oldGroup.exercises = newArray;
+        await oldGroup.save();
+      }
+    }
+
+    return res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    return res.status(error.status ?? 500).json({ errors: [error.message] });
+  }
+};
+
 module.exports = {
   create,
   myList,
   getOne,
+  updateGroup,
 };
