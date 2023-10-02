@@ -55,12 +55,25 @@ const getOne = (req, res) => {
     });
 };
 
-const deleteOne = (req, res) => {
-  Group.findOneAndDelete({ _id: req.params.id, user: req.user.id })
-    .then((data) => res.json(data))
-    .catch((err) => {
-      res.status(err.status ?? 500).json({ errors: [err.message] });
-    });
+const deleteOne = async (req, res) => {
+  // TODO: Exercises connected to the group?
+  // TODO: Default group?
+
+  try {
+    const group = await Group.findById(req.params.id);
+
+    if (group.user !== req.user.id)
+      return res.status(403).json({ errors: ["Not authorized."] });
+
+    const route = await Route.findById(group.route);
+
+    route.groups = route.groups.filter((x) => x._id !== req.params.id);
+    await route.save();
+    await group.deleteOne();
+    return res.json({});
+  } catch {
+    return res.status(error.status ?? 500).json({ errors: [error.message] });
+  }
 };
 
 module.exports = {

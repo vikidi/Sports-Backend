@@ -85,7 +85,31 @@ const updateGroup = async (req, res) => {
 
     return res.sendStatus(200);
   } catch (error) {
-    console.log(error);
+    return res.status(error.status ?? 500).json({ errors: [error.message] });
+  }
+};
+
+const deleteOne = async (req, res) => {
+  try {
+    const exercise = await Exercise.findById(req.params.id);
+
+    if (!exercise)
+      return res.status(404).json({ errors: ["Exercise not found."] });
+
+    if (exercise.user !== req.user.id)
+      return res.status(403).json({ errors: ["Not authorized."] });
+
+    const group = await Group.findById(exercise.group);
+
+    if (group) {
+      group.exercises = group.exercises.filter((x) => x._id !== exercise._id);
+      await group.save();
+    }
+
+    await exercise.deleteOne();
+
+    return res.json({});
+  } catch {
     return res.status(error.status ?? 500).json({ errors: [error.message] });
   }
 };
@@ -95,4 +119,5 @@ module.exports = {
   myList,
   getOne,
   updateGroup,
+  deleteOne,
 };
