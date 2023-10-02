@@ -65,8 +65,17 @@ const getOne = (req, res) => {
     });
 };
 
+const deleteOne = (req, res) => {
+  Route.findOneAndDelete({ _id: req.params.id, user: req.user.id })
+    .then(() => res.sendStatus(200))
+    .catch((err) => {
+      res.status(err.status ?? 500).json({ errors: [err.message] });
+    });
+};
+
 module.exports = {
   create,
   myList,
   getOne,
+  deleteOne,
 };

@@ -5,6 +5,7 @@ const create = (req, res) => {
   let createdGroup;
   Group.create({
     user: req.user.id,
+    route: req.body.routeId,
     exercises: [],
   })
     .then((data) => {
@@ -21,7 +22,6 @@ const create = (req, res) => {
       return res.json(createdGroup);
     })
     .catch((err) => {
-      console.log(err);
       res.status(err.status ?? 500).json({ errors: [err.message] });
     });
 };
@@ -38,7 +38,7 @@ const myList = (req, res) => {
 };
 
 const getOne = (req, res) => {
-  Group.findById(req.params.id, "user exercises name description")
+  Group.findById(req.params.id, "user route exercises name description")
     .populate(
       "exercises",
       "sport startingEpoch parsedDate averageHeartRate averagePace averageCadence averageWatts distanceMeters elapsedSec"
@@ -55,8 +55,17 @@ const getOne = (req, res) => {
     });
 };
 
+const deleteOne = (req, res) => {
+  Group.findOneAndDelete({ _id: req.params.id, user: req.user.id })
+    .then((data) => res.json(data))
+    .catch((err) => {
+      res.status(err.status ?? 500).json({ errors: [err.message] });
+    });
+};
+
 module.exports = {
   create,
   myList,
   getOne,
+  deleteOne,
 };
