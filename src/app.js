@@ -26,7 +26,10 @@ app.use(cors());
 app.use(fileUpload());
 app.use(express.json({ limit: "15mb" }));
 
-require("./database");
+// Tests will handle database separately
+if (process.env.NODE_ENV !== "test") {
+  require("./database");
+}
 
 app.use(
   unless(
@@ -46,7 +49,9 @@ app.use(
   })
 );
 
-require("./services/polar-webhook");
+if (process.env.NODE_ENV !== "test") {
+  require("./services/polar-webhook");
+}
 
 app.use("/", BaseRouter);
 

@@ -27,9 +27,9 @@ axios
             },
           }
         )
-        .then((res) => {
+        .then(async (res) => {
           const newConnection = res.data.data;
-          Connection.create({
+          await Connection.create({
             _id: "polar-webhook",
             externalId: newConnection.id,
             events: newConnection.events,
@@ -44,7 +44,7 @@ axios
           if (con.url === `${process.env.API_URL}/connection/polar-webhook`)
             return;
 
-          axios.patch(
+          return axios.patch(
             `https://www.polaraccesslink.com/v3/webhooks/${con.externalId}`,
             {
               events: ["EXERCISE"],
@@ -59,11 +59,11 @@ axios
             }
           );
         })
-        .then((res) => {
+        .then(async (res) => {
           if (!res) return;
 
           const newConnection = res.data.data;
-          Connection.findByIdAndUpdate("polar-webhook", {
+          await Connection.findByIdAndUpdate("polar-webhook", {
             events: newConnection.events,
             url: newConnection.url,
           });

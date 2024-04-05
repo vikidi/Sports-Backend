@@ -1,0 +1,152 @@
+[
+  {
+    "user": "auth0|651dbea8d5b1e5eb42ba2094",
+    "group": null,
+    "sport": "Running",
+    "startingEpoch": 1692008800499,
+    "parsedDate": "2023-08-14T10:26:39.499Z",
+    "averageHeartRate": 140,
+    "averagePace": 6.9,
+    "averageCadence": 82,
+    "averageWatts": 253,
+    "distanceMeters": 4293.60009765625,
+    "elapsedSec": 9,
+    "trackPoints": [
+      {
+        "latitude": 60.20688667,
+        "longitude": 24.68911333,
+        "altitudeMeters": 35.205,
+        "elapsedSec": 0
+      },
+      {
+        "latitude": 60.20688667,
+        "longitude": 24.68913167,
+        "altitudeMeters": 35.205,
+        "elapsedSec": 1
+      },
+      {
+        "latitude": 60.20688167,
+        "longitude": 24.68915333,
+        "altitudeMeters": 34.29,
+        "elapsedSec": 2
+      },
+      {
+        "latitude": 60.20687833,
+        "longitude": 24.68916667,
+        "altitudeMeters": 34.29,
+        "elapsedSec": 3
+      },
+      {
+        "latitude": 60.20687667,
+        "longitude": 24.68918333,
+        "altitudeMeters": 34.29,
+        "elapsedSec": 4
+      },
+      {
+        "latitude": 60.206875,
+        "longitude": 24.68919167,
+        "altitudeMeters": 34.29,
+        "elapsedSec": 5
+      },
+      {
+        "latitude": 60.20686667,
+        "longitude": 24.68920667,
+        "altitudeMeters": 34.29,
+        "elapsedSec": 6
+      },
+      {
+        "latitude": 60.20685667,
+        "longitude": 24.689215,
+        "altitudeMeters": 34.29,
+        "elapsedSec": 7
+      },
+      {
+        "latitude": 60.206845,
+        "longitude": 24.68922833,
+        "altitudeMeters": 34.29,
+        "elapsedSec": 8
+      },
+      {
+        "latitude": 60.206825,
+        "longitude": 24.68925,
+        "altitudeMeters": 34.29,
+        "elapsedSec": 9
+      }
+    ]
+  },
+  {
+    "user": "auth0|651dbea8d5b1e5eb42ba2094",
+    "group": null,
+    "sport": "Running",
+    "startingEpoch": 1693930291951,
+    "parsedDate": "2023-09-05T16:11:30.951Z",
+    "averageHeartRate": 152,
+    "averagePace": 7.12,
+    "averageCadence": 84,
+    "averageWatts": 270,
+    "distanceMeters": 4129.10009765625,
+    "elapsedSec": 9,
+    "trackPoints": [
+      {
+        "latitude": 60.20676,
+        "longitude": 24.68965667,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 0
+      },
+      {
+        "latitude": 60.20674667,
+        "longitude": 24.689665,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 1
+      },
+      {
+        "latitude": 60.20673333,
+        "longitude": 24.68967667,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 2
+      },
+      {
+        "latitude": 60.20673167,
+        "longitude": 24.68969,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 3
+      },
+      {
+        "latitude": 60.20674,
+        "longitude": 24.689715,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 4
+      },
+      {
+        "latitude": 60.20675333,
+        "longitude": 24.68974833,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 5
+      },
+      {
+        "latitude": 60.20676667,
+        "longitude": 24.689775,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 6
+      },
+      {
+        "latitude": 60.20678,
+        "longitude": 24.68979833,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 7
+      },
+      {
+        "latitude": 60.20678833,
+        "longitude": 24.689835,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 8
+      },
+      {
+        "latitude": 60.20679333,
+        "longitude": 24.68986667,
+        "altitudeMeters": 26.366,
+        "elapsedSec": 9
+      }
+    ]
+  }
+]
