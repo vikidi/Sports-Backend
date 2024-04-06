@@ -10,22 +10,20 @@ const exerciseData = require("./data/exercises.json");
  * Clears database from all documents
  */
 const clearDb = async () => {
-  const collections = mongoose.connection.collections;
-
   await Promise.all(
-    Object.values(collections).map(async (collection) => {
-      await collection.deleteMany({}); // an empty mongodb selector object ({}) must be passed as the filter argument
+    Object.values(mongoose.connection.collections).map(async (collection) => {
+      await collection.deleteMany({}).catch((err) => console.log(err)); // an empty mongodb selector object ({}) must be passed as the filter argument
     })
   );
 };
 
 /**
- * Gets auth0 token for test user
+ * Gets auth0 user data for test user
  * @param {String} scope Scope to retrieve
- * @returns {Promise<String>} Promise with scheme and token
+ * @returns {Promise<String>} Promise with user data
  */
-const getToken = (scope) => {
-  let options = {
+const getUser = (scope) => {
+  let postOptions = {
     method: "POST",
     url: process.env.AUTH_ISSUER + "oauth/token",
     data: {
@@ -38,15 +36,33 @@ const getToken = (scope) => {
     },
   };
 
-  if (scope) options.data.scope = scope;
+  if (scope) postOptions.data.scope = scope;
 
   return new Promise((resolve, reject) => {
+    let token;
     axios
-      .request(options)
+      .request(postOptions)
       .then((response) => {
         if (!response.data.access_token)
           return reject(new Error("No access token."));
-        resolve("Bearer " + response.data.access_token);
+
+        token = `${response.data.token_type} ${response.data.access_token}`;
+
+        let getOptions = {
+          method: "GET",
+          url: process.env.AUTH_ISSUER + "userinfo",
+          headers: {
+            Authorization: token,
+          },
+        };
+
+        return axios.request(getOptions);
+      })
+      .then((res) => {
+        resolve({
+          token: token,
+          id: res.data.sub,
+        });
       })
       .catch((error) => {
         reject(error);
@@ -92,7 +108,7 @@ const saveExerciseMockData = async (n, overrideData) => {
 
 module.exports = {
   clearDb,
-  getToken,
+  getUser,
   stringGen,
   saveExerciseMockData,
 };

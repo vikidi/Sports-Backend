@@ -79,7 +79,6 @@ axios
         )
         .then(async (res) => {
           const newConnection = res.data.data;
-
           // Create new connection to DB if not found
           if (!connectionDb) {
             await Connection.create({

@@ -1,24 +1,19 @@
 const mongoose = require("mongoose");
-const { MongoMemoryServer } = require("mongodb-memory-server");
-
-let mongod;
 
 /**
- * Connect to the in-memory database.
+ * Connect to the test database.
  */
 const connect = async () => {
-  mongod = await MongoMemoryServer.create();
-
-  await mongoose.connect(mongod.getUri(), { dbName: "test" });
+  await mongoose.connect(
+    `mongodb://testadminuser:testadminpass@localhost:27020/tests?retryWrites=true&w=majority`
+  );
 };
 
 /**
- * Drop database, close the connection and stop mongod.
+ * Drop database and close the connection.
  */
 const closeDatabase = async () => {
-  await mongoose.connection.dropDatabase();
   await mongoose.connection.close();
-  await mongod.stop();
 };
 
 module.exports = {

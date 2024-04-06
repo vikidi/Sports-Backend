@@ -1,6 +1,5 @@
 [
   {
-    "user": "auth0|651dbea8d5b1e5eb42ba2094",
     "group": null,
     "sport": "Running",
     "startingEpoch": 1692008800499,
@@ -75,7 +74,6 @@
     ]
   },
   {
-    "user": "auth0|651dbea8d5b1e5eb42ba2094",
     "group": null,
     "sport": "Running",
     "startingEpoch": 1693930291951,
