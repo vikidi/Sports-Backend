@@ -1,6 +1,7 @@
 const request = require("supertest");
 
 const Exercise = require("../../src/models/exercise");
+const Group = require("../../src/models/group");
 
 const {
   clearDb,
@@ -8,6 +9,7 @@ const {
   randomMongoId,
   randomAuth0Id,
   saveExerciseMockData,
+  saveGroupMockData,
 } = require("../_helpers");
 
 const database = require("../_database");
@@ -111,7 +113,7 @@ describe("GET /exercises/:id", () => {
 });
 
 describe("DELETE /exercises/:id", () => {
-  it("Delete own exercise", async () => {
+  it("Delete own exercise, no group connected", async () => {
     // Arrange
     const dbData = await saveExerciseMockData(2, [
       { user: userAuth0.id },
@@ -135,7 +137,38 @@ describe("DELETE /exercises/:id", () => {
     );
   });
 
-  // TODO: Successful, group connection also deleted
+  it("Delete own exercise having group connected", async () => {
+    // Arrange
+    let groupId = randomMongoId();
+
+    const exerciseDbData = await saveExerciseMockData(2, [
+      { user: userAuth0.id, group: groupId },
+      { user: userAuth0.id },
+    ]);
+
+    _ = await saveGroupMockData(1, [
+      { _id: groupId, user: userAuth0.id, exercises: [exerciseDbData[0]._id] },
+    ]);
+
+    // Act
+    const res = await request(app)
+      .delete(`/exercises/${exerciseDbData[0]._id}`)
+      .set("Authorization", userAuth0.token);
+
+    // Assert
+    const allExercises = await Exercise.find({});
+    const sutGroup = await Group.findById(groupId);
+
+    expect(res.statusCode).toEqual(204);
+    expect(res.body).toBeEmpty();
+
+    expect(allExercises).toHaveLength(1);
+    expect(allExercises).not.toContain(
+      expect.objectContaining({ _id: exerciseDbData[0]._id })
+    );
+
+    expect(sutGroup.exercises).toBeEmpty();
+  });
 
   it("Exercise not found", async () => {
     // Arrange

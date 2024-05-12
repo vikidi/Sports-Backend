@@ -1,8 +1,12 @@
 [
   {
-    "groups": [],
-    "defaultGroup": null,
+    "exercises": [],
     "name": "First Group",
     "description": "Lorem Ipsum"
+  },
+  {
+    "exercises": [],
+    "name": "Second Group",
+    "description": "Lorem Ipsum test"
   }
 ]

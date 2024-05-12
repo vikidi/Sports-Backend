@@ -99,7 +99,7 @@ const deleteOne = async (req, res) => {
     const group = await Group.findById(exercise.group);
 
     if (group) {
-      group.exercises = group.exercises.filter((x) => x._id !== exercise._id);
+      group.exercises.pull(exercise._id);
       await group.save();
     }
 

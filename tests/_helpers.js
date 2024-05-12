@@ -3,8 +3,10 @@ const axios = require("axios").default;
 require("dotenv").config({ path: __dirname + "/./../.env.development.local" });
 
 const Exercise = require("../src/models/exercise");
+const Group = require("../src/models/group");
 
 const exerciseData = require("./data/exercises.json");
+const groupData = require("./data/groups.json");
 
 /**
  * Clears database from all documents
@@ -128,6 +130,33 @@ const saveExerciseMockData = async (n, overrideData) => {
   return data;
 };
 
+/**
+ * Saves valid mock group data into database
+ * @param {Number} n How many groups to save
+ * @param {Array<Object>} overrideData Array of objects to override partially or fully the default mock data
+ * @returns {Promise<Object[]>} Saved data in an array
+ */
+const saveGroupMockData = async (n, overrideData) => {
+  if (n > groupData.length)
+    throw new Error("Too many groups requested with param 'n'");
+
+  let data = await Promise.all(
+    (n ? groupData.slice(0, n) : groupData).map(async (data, i) => {
+      let override = { ...data, ...overrideData?.[i] };
+      let savedData = await new Group(override).save();
+      return {
+        ...override,
+        _id: savedData._doc._id.toString(),
+        createdAt: savedData._doc.createdAt?.toISOString(),
+        updatedAt: savedData._doc.updatedAt?.toISOString(),
+        // __v should be never returned
+      };
+    })
+  );
+
+  return data;
+};
+
 module.exports = {
   clearDb,
   getUser,
@@ -135,4 +164,5 @@ module.exports = {
   randomMongoId,
   randomAuth0Id,
   saveExerciseMockData,
+  saveGroupMockData,
 };
