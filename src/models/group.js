@@ -3,7 +3,6 @@ const { Schema, model } = mongoose;
 
 const groupSchema = new Schema({
   user: { type: String, ref: "User" },
-  route: { type: Schema.Types.ObjectId, ref: "Route" },
   exercises: [{ type: Schema.Types.ObjectId, ref: "Exercise" }],
   name: {
     type: String,

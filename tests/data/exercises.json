@@ -83,7 +83,7 @@
     "averageCadence": 84,
     "averageWatts": 270,
     "distanceMeters": 4129.10009765625,
-    "elapsedSec": 9,
+    "elapsedSec": 8,
     "trackPoints": [
       {
         "latitude": 60.20676,
@@ -138,12 +138,6 @@
         "longitude": 24.689835,
         "altitudeMeters": 26.366,
         "elapsedSec": 8
-      },
-      {
-        "latitude": 60.20679333,
-        "longitude": 24.68986667,
-        "altitudeMeters": 26.366,
-        "elapsedSec": 9
       }
     ]
   }

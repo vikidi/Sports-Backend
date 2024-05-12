@@ -1,5 +1,5 @@
 const express = require("express");
-const { body } = require("express-validator");
+const { body, param } = require("express-validator");
 
 const {
   create,
@@ -13,14 +13,28 @@ const { validRequest } = require("../utils");
 
 const router = express.Router();
 
-router.post("/create", async (req, res) => create(req, res));
+router.post("", async (req, res) => create(req, res));
 
 router.get("/my-list", async (req, res) => myList(req, res));
 
-router.get("/:id", async (req, res) => getOne(req, res));
+/**
+ * Get one own exercise
+ */
+router.get("/:id", [param("id").isMongoId()], validRequest, async (req, res) =>
+  getOne(req, res)
+);
 
-router.delete("/:id", async (req, res) => deleteOne(req, res));
+/**
+ * Delete one own exercise
+ */
+router.delete(
+  "/:id",
+  [param("id").isMongoId()],
+  validRequest,
+  async (req, res) => deleteOne(req, res)
+);
 
+// TODO: Patch?
 router.post(
   "/:id/update-group",
   [body("newGroup").isString()],

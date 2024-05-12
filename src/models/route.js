@@ -4,7 +4,7 @@ const { Schema, model } = mongoose;
 const routeSchema = new Schema({
   user: { type: String, ref: "User" },
   groups: [{ type: Schema.Types.ObjectId, ref: "Group" }],
-  defaultGroup: { type: Schema.Types.ObjectId, ref: "Group" },
+  defaultGroup: { type: Schema.Types.ObjectId, ref: "Group" }, // TODO: should this be groups own info?
   name: {
     type: String,
     default: "Default Name",

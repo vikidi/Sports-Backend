@@ -27,7 +27,7 @@ axios
           "https://www.polaraccesslink.com/v3/webhooks",
           {
             events: ["EXERCISE"],
-            url: `${process.env.API_URL}/connection/polar-webhook`,
+            url: `${process.env.API_URL}/connections/polar-webhook`,
           },
           {
             headers: {
@@ -56,8 +56,8 @@ axios
       // No updating needed
       if (
         connectionPolar[0]?.url ===
-          `${process.env.API_URL}/connection/polar-webhook` &&
-        connectionDb?.url === `${process.env.API_URL}/connection/polar-webhook`
+          `${process.env.API_URL}/connections/polar-webhook` &&
+        connectionDb?.url === `${process.env.API_URL}/connections/polar-webhook`
       ) {
         return;
       }
@@ -67,7 +67,7 @@ axios
           `https://www.polaraccesslink.com/v3/webhooks/${connectionPolar[0].id}`,
           {
             events: ["EXERCISE"],
-            url: `${process.env.API_URL}/connection/polar-webhook`,
+            url: `${process.env.API_URL}/connections/polar-webhook`,
           },
           {
             headers: {

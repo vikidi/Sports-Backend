@@ -33,7 +33,7 @@ if (process.env.NODE_ENV !== "test") {
 
 app.use(
   unless(
-    "/connection/polar-webhook",
+    "/connections/polar-webhook",
     auth({
       audience: process.env.AUTH_AUDIENCE,
       issuerBaseURL: process.env.AUTH_ISSUER,
@@ -43,7 +43,7 @@ app.use(
 );
 
 app.use(
-  unless("/connection/polar-webhook", (req, res, next) => {
+  unless("/connections/polar-webhook", (req, res, next) => {
     req.user = { id: req.auth.payload.sub };
     next();
   })

@@ -93,11 +93,8 @@ const deleteOne = async (req, res) => {
   try {
     const exercise = await Exercise.findById(req.params.id);
 
-    if (!exercise)
-      return res.status(404).json({ errors: ["Exercise not found."] });
-
-    if (exercise.user !== req.user.id)
-      return res.status(403).json({ errors: ["Not authorized."] });
+    if (!exercise) return res.status(404).json();
+    if (exercise.user !== req.user.id) return res.status(403).json();
 
     const group = await Group.findById(exercise.group);
 
@@ -108,8 +105,8 @@ const deleteOne = async (req, res) => {
 
     await exercise.deleteOne();
 
-    return res.json({});
-  } catch {
+    return res.status(204).json({});
+  } catch (error) {
     return res.status(error.status ?? 500).json({ errors: [error.message] });
   }
 };

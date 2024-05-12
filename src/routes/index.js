@@ -8,10 +8,10 @@ const group = require("./group");
 
 const router = express.Router();
 
-router.use("/user", user);
-router.use("/connection", connection);
-router.use("/exercise", exercise);
-router.use("/route", route);
-router.use("/group", group);
+router.use("/users", user);
+router.use("/connections", connection);
+router.use("/exercises", exercise);
+router.use("/routes", route);
+router.use("/groups", group);
 
 module.exports = router;

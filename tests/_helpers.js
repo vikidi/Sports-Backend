@@ -75,7 +75,7 @@ const getUser = (scope) => {
  * @param {Number} len Length of the string to be generated
  * @returns Generated string
  */
-const stringGen = (len) => {
+const randomString = (len) => {
   let text = "";
   const charset = "abcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -83,6 +83,22 @@ const stringGen = (len) => {
     text += charset.charAt(Math.floor(Math.random() * charset.length));
 
   return text;
+};
+
+/**
+ * Get random mongodb ObjectId
+ * @returns New random ObjectId
+ */
+const randomMongoId = () => {
+  return new mongoose.Types.ObjectId();
+};
+
+/**
+ * Get random Auth0 user ID
+ * @returns New random Auth0 user ID with auth0 prefix
+ */
+const randomAuth0Id = () => {
+  return `auth0|${randomString(24)}`;
 };
 
 /**
@@ -99,7 +115,13 @@ const saveExerciseMockData = async (n, overrideData) => {
     (n ? exerciseData.slice(0, n) : exerciseData).map(async (data, i) => {
       let override = { ...data, ...overrideData?.[i] };
       let savedData = await new Exercise(override).save();
-      return savedData._doc;
+      return {
+        ...override,
+        _id: savedData._doc._id.toString(),
+        createdAt: savedData._doc.createdAt?.toISOString(),
+        updatedAt: savedData._doc.updatedAt?.toISOString(),
+        // __v should be never returned
+      };
     })
   );
 
@@ -109,6 +131,8 @@ const saveExerciseMockData = async (n, overrideData) => {
 module.exports = {
   clearDb,
   getUser,
-  stringGen,
+  randomString,
+  randomMongoId,
+  randomAuth0Id,
   saveExerciseMockData,
 };
