@@ -1,3 +1,5 @@
+export {}; // This is to combat the TS2451 error
+
 const express = require("express");
 const { body, param } = require("express-validator");
 

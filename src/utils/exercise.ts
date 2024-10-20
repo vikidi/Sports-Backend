@@ -1,3 +1,5 @@
+export {}; // This is to combat the TS2451 error
+
 const tcx = require("tcx-js");
 const temp = require("temp").track();
 const fs = require("fs");
@@ -7,7 +9,7 @@ const Exercise = require("../models/exercise");
 const { roundTo } = require("../utils");
 
 const createNew = (userId, dataBuffer) => {
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     temp.open("exercise", (err, info) => {
       if (!err) {
         fs.writeFileSync(info.fd, dataBuffer);
@@ -70,10 +72,10 @@ const createNew = (userId, dataBuffer) => {
             return resolve();
           })
           .catch(() => {
-            return reject(Error({ status: 500, message: "Server failure." }));
+            return reject(Error("Server failure."));
           });
       } else {
-        return reject(Error({ status: 500, message: "Server failure." }));
+        return reject(Error("Server failure."));
       }
     });
   });

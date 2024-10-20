@@ -1,3 +1,5 @@
+export {}; // This is to combat the TS2451 error
+
 const { validationResult } = require("express-validator");
 
 const roundTo = (n, digits) => {

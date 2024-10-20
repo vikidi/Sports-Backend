@@ -1,3 +1,5 @@
+export {}; // This is to combat the TS2451 error
+
 const axios = require("axios");
 
 const { getPolarAuthorization } = require("../utils");
@@ -18,7 +20,7 @@ axios
     if (Array.isArray(connectionPolar) && !connectionPolar.length) {
       // Delete connection if found from DB
       if (connectionDb) {
-        await Test.deleteById("polar-webhook");
+        await Connection.deleteById("polar-webhook");
       }
 
       // Request new connection from polar API

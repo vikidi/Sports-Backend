@@ -1,3 +1,5 @@
+export {}; // This is to combat the TS2451 error
+
 const Group = require("../models/group");
 const Route = require("../models/route");
 
@@ -71,7 +73,7 @@ const deleteOne = async (req, res) => {
     await route.save();
     await group.deleteOne();
     return res.json({});
-  } catch {
+  } catch (error) {
     return res.status(error.status ?? 500).json({ errors: [error.message] });
   }
 };

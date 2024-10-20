@@ -1,3 +1,5 @@
+export {}; // This is to combat the TS2451 error
+
 const Exercise = require("../models/exercise");
 const Group = require("../models/group");
 

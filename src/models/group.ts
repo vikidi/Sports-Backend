@@ -1,10 +1,11 @@
+export {}; // This is to combat the TS2451 error
+
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
-const routeSchema = new Schema({
+const groupSchema = new Schema({
   user: { type: String, ref: "User" },
-  groups: [{ type: Schema.Types.ObjectId, ref: "Group" }],
-  defaultGroup: { type: Schema.Types.ObjectId, ref: "Group" }, // TODO: should this be groups own info?
+  exercises: [{ type: Schema.Types.ObjectId, ref: "Exercise" }],
   name: {
     type: String,
     default: "Default Name",
@@ -12,10 +13,6 @@ const routeSchema = new Schema({
   description: {
     type: String,
     default: "Example description",
-  },
-  useAutomaticGrouping: {
-    type: Boolean,
-    default: false,
   },
   createdAt: {
     type: Date,
@@ -30,11 +27,11 @@ const routeSchema = new Schema({
   },
 });
 
-routeSchema.pre("save", function (next) {
+groupSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-const Route = model("Route", routeSchema);
+const Group = model("Group", groupSchema);
 
-module.exports = Route;
+module.exports = Group;

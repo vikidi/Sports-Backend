@@ -1,12 +1,15 @@
+export {}; // This is to combat the TS2451 error
+
 const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
-const connectionSchema = new Schema({
+const userSchema = new Schema({
   _id: { type: String, required: true },
-  externalId: String,
-  events: [String],
-  url: String,
-  signatureSecretKey: String,
+  polarId: Number,
+  polarMemberId: String,
+  polarToken: String,
+  polarTokenCreatedAt: Date,
+  polarTokenExpiresAt: Date,
   createdAt: {
     type: Date,
     required: true,
@@ -20,11 +23,11 @@ const connectionSchema = new Schema({
   },
 });
 
-connectionSchema.pre("save", function (next) {
+userSchema.pre("save", function (next) {
   this.updatedAt = Date.now();
   next();
 });
 
-const Connection = model("Connection", connectionSchema);
+const User = model("User", userSchema);
 
-module.exports = Connection;
+module.exports = User;

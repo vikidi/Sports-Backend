@@ -1,3 +1,5 @@
+export {}; // This is to combat the TS2451 error
+
 const express = require("express");
 
 const { create, myList, getOne, deleteOne } = require("../controllers/route");
