@@ -1,12 +1,11 @@
 export {}; // This is to combat the TS2451 error
 
-import { Response } from "express";
-import { AuthenticatedRequest } from "../common/types";
+import { Request, Response } from "express";
 import { Route } from "../models/route";
 
-const create = (req: AuthenticatedRequest, res: Response) => {
+const create = (req: Request, res: Response) => {
   Route.create({
-    user: req.user.id,
+    user: req.user!.id,
     groups: [],
     defaultGroup: null,
   })
@@ -19,9 +18,9 @@ const create = (req: AuthenticatedRequest, res: Response) => {
     });
 };
 
-const myList = (req: AuthenticatedRequest, res: Response) => {
+const myList = (req: Request, res: Response) => {
   Route.find(
-    { user: req.user.id },
+    { user: req.user!.id },
     "groups defaultGroup name description useAutomaticGrouping"
   )
     .populate("groups", "exercises name description")
@@ -39,7 +38,7 @@ const myList = (req: AuthenticatedRequest, res: Response) => {
     });
 };
 
-const getOne = (req: AuthenticatedRequest, res: Response) => {
+const getOne = (req: Request, res: Response) => {
   Route.findById(
     req.params.id,
     "user groups defaultGroup name description useAutomaticGrouping"
@@ -59,7 +58,7 @@ const getOne = (req: AuthenticatedRequest, res: Response) => {
     })
     .then((data) => {
       if (!data) return res.sendStatus(404);
-      if (data.user !== req.user.id) return res.sendStatus(403);
+      if (data.user !== req.user!.id) return res.sendStatus(403);
 
       const { user, ...sendData } = data;
       return res.json(sendData);
@@ -69,8 +68,8 @@ const getOne = (req: AuthenticatedRequest, res: Response) => {
     });
 };
 
-const deleteOne = (req: AuthenticatedRequest, res: Response) => {
-  Route.findOneAndDelete({ _id: req.params.id, user: req.user.id })
+const deleteOne = (req: Request, res: Response) => {
+  Route.findOneAndDelete({ _id: req.params.id, user: req.user!.id })
     .then(() => res.sendStatus(200))
     .catch((err) => {
       res.status(err.status ?? 500).json({ errors: [err.message] });

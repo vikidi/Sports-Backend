@@ -1,14 +1,13 @@
 export {}; // This is to combat the TS2451 error
 
-import { Response } from "express";
-import { AuthenticatedRequest } from "../common/types";
+import { Request, Response } from "express";
 import { Group } from "../models/group";
 import { Route } from "../models/route";
 
-const create = (req: AuthenticatedRequest, res: Response) => {
+const create = (req: Request, res: Response) => {
   let createdGroup: any; // TODO: fix
   Group.create({
-    user: req.user.id,
+    user: req.user!.id,
     route: req.body.routeId,
     exercises: [],
   })
@@ -30,8 +29,8 @@ const create = (req: AuthenticatedRequest, res: Response) => {
     });
 };
 
-const myList = (req: AuthenticatedRequest, res: Response) => {
-  Group.find({ user: req.user.id }, "exercises name description")
+const myList = (req: Request, res: Response) => {
+  Group.find({ user: req.user!.id }, "exercises name description")
     .exec()
     .then((data) => {
       return res.json(data);
@@ -41,7 +40,7 @@ const myList = (req: AuthenticatedRequest, res: Response) => {
     });
 };
 
-const getOne = (req: AuthenticatedRequest, res: Response) => {
+const getOne = (req: Request, res: Response) => {
   Group.findById(req.params.id, "user route exercises name description")
     .populate(
       "exercises",
@@ -49,7 +48,7 @@ const getOne = (req: AuthenticatedRequest, res: Response) => {
     )
     .then((data) => {
       if (!data) return res.sendStatus(404);
-      if (data.user !== req.user.id) return res.sendStatus(403);
+      if (data.user !== req.user!.id) return res.sendStatus(403);
 
       const { user, ...sendData } = data;
       return res.json(sendData);
@@ -59,11 +58,11 @@ const getOne = (req: AuthenticatedRequest, res: Response) => {
     });
 };
 
-const deleteOne = async (req: AuthenticatedRequest, res: Response) => {
+const deleteOne = async (req: Request, res: Response) => {
   try {
     const group = await Group.findById(req.params.id);
 
-    if (group == null || group.user !== req.user.id)
+    if (group == null || group.user !== req.user!.id)
       return res.status(403).json({ errors: ["Not authorized."] });
 
     const route = await Route.findById(group); // TODO: Not working! Find the route for the group

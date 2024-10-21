@@ -1,13 +1,12 @@
 export {}; // This is to combat the TS2451 error
 
 import axios from "axios";
-import { Response } from "express";
-import { AuthenticatedRequest } from "../common/types";
+import { Request, Response } from "express";
 import { User } from "../models/user";
 
 const { createNew } = require("../utils/exercise");
 
-const polarWebhook = (req: AuthenticatedRequest, res: Response) => {
+const polarWebhook = (req: Request, res: Response) => {
   if (req.body.event === "PING") {
     return res.sendStatus(200);
   } else if (req.body.event === "EXERCISE") {
@@ -21,7 +20,7 @@ const polarWebhook = (req: AuthenticatedRequest, res: Response) => {
         });
       })
       .then((response) => {
-        return createNew(req.user.id, Buffer.from(response.data, "utf8"));
+        return createNew(req.user!.id, Buffer.from(response.data, "utf8"));
       })
       .then(() => {
         res.sendStatus(200);

@@ -1,7 +1,6 @@
 export {}; // This is to combat the TS2451 error
 
-import { Response } from "express";
-import { AuthenticatedRequest } from "../common/types";
+import { Request, Response } from "express";
 import { Group } from "../models/group";
 import { Exercise } from "../models/exercise";
 
@@ -18,9 +17,9 @@ const create = (req: /*AuthenticatedRequest*/ any, res: Response) => {
     });
 };
 
-const myList = (req: AuthenticatedRequest, res: Response) => {
+const myList = (req: Request, res: Response) => {
   Exercise.find(
-    { user: req.user.id },
+    { user: req.user!.id },
     "_id sport startingEpoch parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence averageWatts"
   )
     .exec()
@@ -32,14 +31,14 @@ const myList = (req: AuthenticatedRequest, res: Response) => {
     });
 };
 
-const getOne = (req: AuthenticatedRequest, res: Response) => {
+const getOne = (req: Request, res: Response) => {
   Exercise.findById(
     req.params.id,
     "_id user group sport startingEpoch parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence averageWatts trackPoints"
   )
     .then((data) => {
       if (!data) return res.sendStatus(404);
-      if (data.user !== req.user.id) return res.sendStatus(403);
+      if (data.user !== req.user!.id) return res.sendStatus(403);
 
       const { user, ...sendData } = data;
       return res.json(sendData);
@@ -49,12 +48,12 @@ const getOne = (req: AuthenticatedRequest, res: Response) => {
     });
 };
 
-const updateGroup = async (req: AuthenticatedRequest, res: Response) => {
+const updateGroup = async (req: Request, res: Response) => {
   try {
     let exercise = await Exercise.findById(req.params.id, "_id user group");
 
     if (!exercise) return res.sendStatus(404);
-    if (exercise.user !== req.user.id) return res.sendStatus(403);
+    if (exercise.user !== req.user!.id) return res.sendStatus(403);
     if (exercise.group === req.body.newGroup) return res.sendStatus(200);
 
     let newGroup;
@@ -62,7 +61,7 @@ const updateGroup = async (req: AuthenticatedRequest, res: Response) => {
       newGroup = await Group.findById(req.body.newGroup, "_id user exercises");
 
       if (!newGroup) return res.sendStatus(404);
-      if (newGroup.user !== req.user.id) return res.sendStatus(403);
+      if (newGroup.user !== req.user!.id) return res.sendStatus(403);
     }
 
     let oldGroup;
@@ -94,12 +93,12 @@ const updateGroup = async (req: AuthenticatedRequest, res: Response) => {
   }
 };
 
-const deleteOne = async (req: AuthenticatedRequest, res: Response) => {
+const deleteOne = async (req: Request, res: Response) => {
   try {
     const exercise = await Exercise.findById(req.params.id);
 
     if (!exercise) return res.status(404).json();
-    if (exercise.user !== req.user.id) return res.status(403).json();
+    if (exercise.user !== req.user!.id) return res.status(403).json();
 
     const group = await Group.findById(exercise.group);
 

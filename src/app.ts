@@ -1,15 +1,13 @@
 export {}; // This is to combat the TS2451 error
 
-import { Response, NextFunction } from "express";
-import { AuthenticatedRequest } from "./common/types";
+import express, { Response, NextFunction } from "express";
+import cors from "cors";
+import helmet from "helmet";
+import morgan from "morgan";
+import fileUpload from "express-fileupload";
+import { auth } from "express-oauth2-jwt-bearer";
 
-const express = require("express");
-const cors = require("cors");
-const helmet = require("helmet");
-const { auth } = require("express-oauth2-jwt-bearer");
-const morgan = require("morgan");
-const fileUpload = require("express-fileupload");
-const { unless } = require("./utils");
+import { unless } from "./utils";
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({
@@ -48,13 +46,10 @@ app.use(
 );
 
 app.use(
-  unless(
-    "/connections/polar-webhook",
-    (req: AuthenticatedRequest, _: Response, next: NextFunction) => {
-      req.user = { id: req.auth.payload.sub };
-      next();
-    }
-  )
+  unless("/connections/polar-webhook", (req, _, next) => {
+    req.user = { id: req.auth!.payload.sub };
+    next();
+  })
 );
 
 if (process.env.NODE_ENV !== "test") {
@@ -63,4 +58,4 @@ if (process.env.NODE_ENV !== "test") {
 
 app.use("/", BaseRouter);
 
-module.exports = app;
+export default app;

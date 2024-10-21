@@ -1,5 +1,5 @@
-const http = require("http");
-const app = require("./app");
+import http from "http";
+import app from "./app";
 
 const serverListenPort = normalizePort(process.env.PORT || "5050");
 app.set("port", serverListenPort);

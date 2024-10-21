@@ -1,14 +1,13 @@
 export {}; // This is to combat the TS2451 error
 
 import axios from "axios";
-import { Response } from "express";
-import { AuthenticatedRequest } from "../common/types";
+import { Request, Response } from "express";
 import { User } from "../models/user";
 
 const { getPolarAuthorization } = require("../utils");
 
-const getSelf = (req: AuthenticatedRequest, res: Response) => {
-  User.findById(req.user.id)
+const getSelf = (req: Request, res: Response) => {
+  User.findById(req.user!.id)
     .then((user) => {
       if (user === null)
         return res.status(404).json({ errors: ["User not found."] });
@@ -22,13 +21,13 @@ const getSelf = (req: AuthenticatedRequest, res: Response) => {
     );
 };
 
-const create = (req: AuthenticatedRequest, res: Response) => {
-  User.findById(req.user.id)
+const create = (req: Request, res: Response) => {
+  User.findById(req.user!.id)
     .then((user) => {
       if (user !== null) return;
 
       return User.create({
-        _id: req.user.id,
+        _id: req.user!.id,
       });
     })
     .then(() => res.status(200).json())
@@ -37,7 +36,9 @@ const create = (req: AuthenticatedRequest, res: Response) => {
     );
 };
 
-const polarToken = (req: AuthenticatedRequest, res: Response) => {
+const polarToken = (req: Request, res: Response) => {
+  if (!req.user) return res.status(401);
+
   axios
     .post(
       "https://polarremote.com/v2/oauth2/token",
@@ -55,7 +56,7 @@ const polarToken = (req: AuthenticatedRequest, res: Response) => {
       t.setSeconds(t.getSeconds() + result.data.expires_in);
 
       return User.findByIdAndUpdate(
-        req.user.id,
+        req.user!.id,
         {
           polarId: result.data.x_user_id,
           polarToken: result.data.access_token,
@@ -81,7 +82,7 @@ const polarToken = (req: AuthenticatedRequest, res: Response) => {
       );
     })
     .then((resp) => {
-      return User.findByIdAndUpdate(req.user.id, {
+      return User.findByIdAndUpdate(req.user!.id, {
         polarMemberId: resp.data["member-id"],
       });
     })

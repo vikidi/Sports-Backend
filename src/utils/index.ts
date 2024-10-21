@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 
 const { validationResult } = require("express-validator");
 
-const roundTo = (n: number, digits: number) => {
+export const roundTo = (n: number, digits: number) => {
   let negative = false;
   if (digits === undefined) {
     digits = 0;
@@ -22,7 +22,11 @@ const roundTo = (n: number, digits: number) => {
   return n.toFixed(digits);
 };
 
-const validRequest = (req: Request, res: Response, next: NextFunction) => {
+export const validRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
@@ -30,13 +34,13 @@ const validRequest = (req: Request, res: Response, next: NextFunction) => {
   return next();
 };
 
-const getPolarAuthorization = () => {
+export const getPolarAuthorization = () => {
   return Buffer.from(
     `${process.env.POLAR_CLIENT_ID}:${process.env.POLAR_CLIENT_SECRET}`
   ).toString("base64");
 };
 
-const unless = (
+export const unless = (
   path: string,
   middleware: (req: Request, res: Response, next: NextFunction) => void
 ) => {
@@ -49,7 +53,7 @@ const unless = (
   };
 };
 
-function removeItemOnce<T>(arr: Array<T>, value: T): Array<T> {
+export function removeItemOnce<T>(arr: Array<T>, value: T): Array<T> {
   let index = arr.indexOf(value);
   if (index > -1) {
     arr.splice(index, 1);
@@ -57,7 +61,7 @@ function removeItemOnce<T>(arr: Array<T>, value: T): Array<T> {
   return arr;
 }
 
-function removeItemAll<T>(arr: Array<T>, value: T): Array<T> {
+export function removeItemAll<T>(arr: Array<T>, value: T): Array<T> {
   let i = 0;
   while (i < arr.length) {
     if (arr[i] === value) {
@@ -68,12 +72,3 @@ function removeItemAll<T>(arr: Array<T>, value: T): Array<T> {
   }
   return arr;
 }
-
-module.exports = {
-  roundTo,
-  validRequest,
-  getPolarAuthorization,
-  unless,
-  removeItemOnce,
-  removeItemAll,
-};
