@@ -1,7 +1,7 @@
 export {}; // This is to combat the TS2451 error
 
-const express = require("express");
-const { body, param } = require("express-validator");
+import express from "express";
+import { body, param } from "express-validator";
 
 const {
   create,
@@ -22,8 +22,11 @@ router.get("/my-list", async (req, res) => myList(req, res));
 /**
  * Get one own exercise
  */
-router.get("/:id", [param("id").isMongoId()], validRequest, async (req, res) =>
-  getOne(req, res)
+router.get(
+  "/:id",
+  [param("id").isMongoId()],
+  validRequest,
+  async (req: express.Request, res: express.Response) => getOne(req, res)
 );
 
 /**
@@ -33,7 +36,7 @@ router.delete(
   "/:id",
   [param("id").isMongoId()],
   validRequest,
-  async (req, res) => deleteOne(req, res)
+  async (req: express.Request, res: express.Response) => deleteOne(req, res)
 );
 
 // TODO: Patch?
@@ -41,7 +44,7 @@ router.post(
   "/:id/update-group",
   [body("newGroup").isString()],
   validRequest,
-  async (req, res) => updateGroup(req, res)
+  async (req: express.Request, res: express.Response) => updateGroup(req, res)
 );
 
 module.exports = router;

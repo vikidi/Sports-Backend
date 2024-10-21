@@ -1,20 +1,20 @@
 export {}; // This is to combat the TS2451 error
 
-const axios = require("axios");
-
-const User = require("../models/user");
+import axios from "axios";
+import { Response } from "express";
+import { AuthenticatedRequest } from "../common/types";
+import { User } from "../models/user";
 
 const { getPolarAuthorization } = require("../utils");
 
-const getSelf = (req, res) => {
+const getSelf = (req: AuthenticatedRequest, res: Response) => {
   User.findById(req.user.id)
     .then((user) => {
       if (user === null)
         return res.status(404).json({ errors: ["User not found."] });
 
       res.json({
-        polarConnected:
-          user.polarToken !== undefined && user.polarConnected !== "",
+        polarConnected: user.polarToken !== undefined,
       });
     })
     .catch((err) =>
@@ -22,7 +22,7 @@ const getSelf = (req, res) => {
     );
 };
 
-const create = (req, res) => {
+const create = (req: AuthenticatedRequest, res: Response) => {
   User.findById(req.user.id)
     .then((user) => {
       if (user !== null) return;
@@ -37,7 +37,7 @@ const create = (req, res) => {
     );
 };
 
-const polarToken = (req, res) => {
+const polarToken = (req: AuthenticatedRequest, res: Response) => {
   axios
     .post(
       "https://polarremote.com/v2/oauth2/token",
@@ -66,12 +66,14 @@ const polarToken = (req, res) => {
       );
     })
     .then((user) => {
+      // TODO: What if user is null
+
       return axios.post(
         "https://www.polaraccesslink.com/v3/users",
-        { "member-id": `${user.polarId}` },
+        { "member-id": `${user!.polarId}` }, // TODO: What if user is null
         {
           headers: {
-            Authorization: `Bearer ${user.polarToken}`,
+            Authorization: `Bearer ${user!.polarToken}`, // TODO: What if user is null
             "Content-Type": "application/json",
             Accept: "application/json",
           },

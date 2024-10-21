@@ -1,21 +1,24 @@
 export {}; // This is to combat the TS2451 error
 
-const Exercise = require("../models/exercise");
-const Group = require("../models/group");
+import { Response } from "express";
+import { AuthenticatedRequest } from "../common/types";
+import { Group } from "../models/group";
+import { Exercise } from "../models/exercise";
 
 const { createNew } = require("../utils/exercise");
+const { removeItemAll } = require("../utils");
 
-const create = (req, res) => {
+const create = (req: /*AuthenticatedRequest*/ any, res: Response) => {
   createNew(req.user.id, req.files.exercise.data)
     .then(() => {
       res.sendStatus(200);
     })
-    .catch((err) => {
+    .catch((err: any) => {
       res.status(err.status ?? 500).json({ errors: [err.message] });
     });
 };
 
-const myList = (req, res) => {
+const myList = (req: AuthenticatedRequest, res: Response) => {
   Exercise.find(
     { user: req.user.id },
     "_id sport startingEpoch parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence averageWatts"
@@ -29,7 +32,7 @@ const myList = (req, res) => {
     });
 };
 
-const getOne = (req, res) => {
+const getOne = (req: AuthenticatedRequest, res: Response) => {
   Exercise.findById(
     req.params.id,
     "_id user group sport startingEpoch parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence averageWatts trackPoints"
@@ -38,7 +41,7 @@ const getOne = (req, res) => {
       if (!data) return res.sendStatus(404);
       if (data.user !== req.user.id) return res.sendStatus(403);
 
-      const { user, ...sendData } = data._doc;
+      const { user, ...sendData } = data;
       return res.json(sendData);
     })
     .catch((err) => {
@@ -46,7 +49,7 @@ const getOne = (req, res) => {
     });
 };
 
-const updateGroup = async (req, res) => {
+const updateGroup = async (req: AuthenticatedRequest, res: Response) => {
   try {
     let exercise = await Exercise.findById(req.params.id, "_id user group");
 
@@ -63,7 +66,7 @@ const updateGroup = async (req, res) => {
     }
 
     let oldGroup;
-    if (exercise.group && exercise.group !== "") {
+    if (exercise.group && exercise.group.toString() !== "") {
       oldGroup = await Group.findById(exercise.group, "_id exercises");
     }
 
@@ -86,12 +89,12 @@ const updateGroup = async (req, res) => {
     }
 
     return res.sendStatus(200);
-  } catch (error) {
+  } catch (error: any) {
     return res.status(error.status ?? 500).json({ errors: [error.message] });
   }
 };
 
-const deleteOne = async (req, res) => {
+const deleteOne = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const exercise = await Exercise.findById(req.params.id);
 
@@ -101,14 +104,14 @@ const deleteOne = async (req, res) => {
     const group = await Group.findById(exercise.group);
 
     if (group) {
-      group.exercises.pull(exercise._id);
+      group.exercises = removeItemAll(group.exercises, exercise._id);
       await group.save();
     }
 
     await exercise.deleteOne();
 
     return res.status(204).json({});
-  } catch (error) {
+  } catch (error: any) {
     return res.status(error.status ?? 500).json({ errors: [error.message] });
   }
 };

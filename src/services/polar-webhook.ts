@@ -1,6 +1,6 @@
 export {}; // This is to combat the TS2451 error
 
-const axios = require("axios");
+import axios from "axios";
 
 const { getPolarAuthorization } = require("../utils");
 const Connection = require("../models/connection");

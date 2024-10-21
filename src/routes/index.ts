@@ -1,6 +1,6 @@
 export {}; // This is to combat the TS2451 error
 
-const express = require("express");
+import express from "express";
 
 const user = require("./user");
 const connection = require("./connection");

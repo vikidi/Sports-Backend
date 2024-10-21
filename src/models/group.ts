@@ -1,37 +1,21 @@
 export {}; // This is to combat the TS2451 error
 
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+import { Schema, model } from "mongoose";
 
-const groupSchema = new Schema({
-  user: { type: String, ref: "User" },
-  exercises: [{ type: Schema.Types.ObjectId, ref: "Exercise" }],
-  name: {
-    type: String,
-    default: "Default Name",
+const groupSchema = new Schema(
+  {
+    user: { type: String, ref: "User" },
+    exercises: [{ type: Schema.Types.ObjectId, ref: "Exercise" }],
+    name: {
+      type: String,
+      default: "Default Name",
+    },
+    description: {
+      type: String,
+      default: "Example description",
+    },
   },
-  description: {
-    type: String,
-    default: "Example description",
-  },
-  createdAt: {
-    type: Date,
-    required: true,
-    default: () => Date.now(),
-    immutable: true,
-  },
-  updatedAt: {
-    type: Date,
-    required: true,
-    default: () => Date.now(),
-  },
-});
+  { timestamps: true }
+);
 
-groupSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-const Group = model("Group", groupSchema);
-
-module.exports = Group;
+export const Group = model("Group", groupSchema);

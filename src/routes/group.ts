@@ -1,7 +1,7 @@
 export {}; // This is to combat the TS2451 error
 
-const express = require("express");
-const { body } = require("express-validator");
+import express from "express";
+import { body } from "express-validator";
 
 const { create, myList, getOne, deleteOne } = require("../controllers/group");
 
@@ -13,7 +13,7 @@ router.post(
   "/create",
   [body("routeId").not().isEmpty()],
   validRequest,
-  async (req, res) => create(req, res)
+  async (req: express.Request, res: express.Response) => create(req, res)
 );
 
 router.get("/my-list", async (req, res) => myList(req, res));

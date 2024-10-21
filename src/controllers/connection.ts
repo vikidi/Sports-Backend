@@ -1,12 +1,13 @@
 export {}; // This is to combat the TS2451 error
 
-const axios = require("axios");
-
-const User = require("../models/user");
+import axios from "axios";
+import { Response } from "express";
+import { AuthenticatedRequest } from "../common/types";
+import { User } from "../models/user";
 
 const { createNew } = require("../utils/exercise");
 
-const polarWebhook = (req, res) => {
+const polarWebhook = (req: AuthenticatedRequest, res: Response) => {
   if (req.body.event === "PING") {
     return res.sendStatus(200);
   } else if (req.body.event === "EXERCISE") {
@@ -15,7 +16,7 @@ const polarWebhook = (req, res) => {
         return axios.get(`${req.body.url}/tcx`, {
           headers: {
             Accept: "application/vnd.garmin.tcx+xml",
-            Authorization: `Bearer ${user.polarToken}`,
+            Authorization: `Bearer ${user!.polarToken}`,
           },
         });
       })

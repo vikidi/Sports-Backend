@@ -1,42 +1,26 @@
 export {}; // This is to combat the TS2451 error
 
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+import { Schema, model } from "mongoose";
 
-const routeSchema = new Schema({
-  user: { type: String, ref: "User" },
-  groups: [{ type: Schema.Types.ObjectId, ref: "Group" }],
-  defaultGroup: { type: Schema.Types.ObjectId, ref: "Group" }, // TODO: should this be groups own info?
-  name: {
-    type: String,
-    default: "Default Name",
+const routeSchema = new Schema(
+  {
+    user: { type: String, ref: "User" },
+    groups: [{ type: Schema.Types.ObjectId, ref: "Group" }],
+    defaultGroup: { type: Schema.Types.ObjectId, ref: "Group" }, // TODO: should this be groups own info?
+    name: {
+      type: String,
+      default: "Default Name",
+    },
+    description: {
+      type: String,
+      default: "Example description",
+    },
+    useAutomaticGrouping: {
+      type: Boolean,
+      default: false,
+    },
   },
-  description: {
-    type: String,
-    default: "Example description",
-  },
-  useAutomaticGrouping: {
-    type: Boolean,
-    default: false,
-  },
-  createdAt: {
-    type: Date,
-    required: true,
-    default: () => Date.now(),
-    immutable: true,
-  },
-  updatedAt: {
-    type: Date,
-    required: true,
-    default: () => Date.now(),
-  },
-});
+  { timestamps: true }
+);
 
-routeSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-const Route = model("Route", routeSchema);
-
-module.exports = Route;
+export const Route = model("Route", routeSchema);

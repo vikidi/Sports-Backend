@@ -1,33 +1,17 @@
 export {}; // This is to combat the TS2451 error
 
-const mongoose = require("mongoose");
-const { Schema, model } = mongoose;
+import { Schema, model } from "mongoose";
 
-const userSchema = new Schema({
-  _id: { type: String, required: true },
-  polarId: Number,
-  polarMemberId: String,
-  polarToken: String,
-  polarTokenCreatedAt: Date,
-  polarTokenExpiresAt: Date,
-  createdAt: {
-    type: Date,
-    required: true,
-    default: () => Date.now(),
-    immutable: true,
+const userSchema = new Schema(
+  {
+    _id: { type: String, required: true },
+    polarId: Number,
+    polarMemberId: String,
+    polarToken: String,
+    polarTokenCreatedAt: Date,
+    polarTokenExpiresAt: Date,
   },
-  updatedAt: {
-    type: Date,
-    required: true,
-    default: () => Date.now(),
-  },
-});
+  { timestamps: true }
+);
 
-userSchema.pre("save", function (next) {
-  this.updatedAt = Date.now();
-  next();
-});
-
-const User = model("User", userSchema);
-
-module.exports = User;
+export const User = model("User", userSchema);

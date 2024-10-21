@@ -1,15 +1,17 @@
 export {}; // This is to combat the TS2451 error
 
-const Route = require("../models/route");
+import { Response } from "express";
+import { AuthenticatedRequest } from "../common/types";
+import { Route } from "../models/route";
 
-const create = (req, res) => {
+const create = (req: AuthenticatedRequest, res: Response) => {
   Route.create({
     user: req.user.id,
     groups: [],
     defaultGroup: null,
   })
     .then((data) => {
-      const { user, ...newData } = data._doc;
+      const { user, ...newData } = data;
       return res.json(newData);
     })
     .catch((err) => {
@@ -17,7 +19,7 @@ const create = (req, res) => {
     });
 };
 
-const myList = (req, res) => {
+const myList = (req: AuthenticatedRequest, res: Response) => {
   Route.find(
     { user: req.user.id },
     "groups defaultGroup name description useAutomaticGrouping"
@@ -37,7 +39,7 @@ const myList = (req, res) => {
     });
 };
 
-const getOne = (req, res) => {
+const getOne = (req: AuthenticatedRequest, res: Response) => {
   Route.findById(
     req.params.id,
     "user groups defaultGroup name description useAutomaticGrouping"
@@ -59,7 +61,7 @@ const getOne = (req, res) => {
       if (!data) return res.sendStatus(404);
       if (data.user !== req.user.id) return res.sendStatus(403);
 
-      const { user, ...sendData } = data._doc;
+      const { user, ...sendData } = data;
       return res.json(sendData);
     })
     .catch((err) => {
@@ -67,7 +69,7 @@ const getOne = (req, res) => {
     });
 };
 
-const deleteOne = (req, res) => {
+const deleteOne = (req: AuthenticatedRequest, res: Response) => {
   Route.findOneAndDelete({ _id: req.params.id, user: req.user.id })
     .then(() => res.sendStatus(200))
     .catch((err) => {

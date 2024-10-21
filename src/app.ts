@@ -1,4 +1,8 @@
 export {}; // This is to combat the TS2451 error
+
+import { Response, NextFunction } from "express";
+import { AuthenticatedRequest } from "./common/types";
+
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -44,10 +48,13 @@ app.use(
 );
 
 app.use(
-  unless("/connections/polar-webhook", (req, res, next) => {
-    req.user = { id: req.auth.payload.sub };
-    next();
-  })
+  unless(
+    "/connections/polar-webhook",
+    (req: AuthenticatedRequest, _: Response, next: NextFunction) => {
+      req.user = { id: req.auth.payload.sub };
+      next();
+    }
+  )
 );
 
 if (process.env.NODE_ENV !== "test") {

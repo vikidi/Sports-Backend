@@ -1,82 +1,83 @@
 export {}; // This is to combat the TS2451 error
 
-const tcx = require("tcx-js");
-const temp = require("temp").track();
-const fs = require("fs");
+import fs from "fs";
+import temp from "temp";
+import { Parser } from "tcx-js";
 
 const Exercise = require("../models/exercise");
 
 const { roundTo } = require("../utils");
 
-const createNew = (userId, dataBuffer) => {
+temp.track();
+
+const createNew = (
+  userId: string,
+  dataBuffer: string | NodeJS.ArrayBufferView
+) => {
   return new Promise<void>((resolve, reject) => {
     temp.open("exercise", (err, info) => {
-      if (!err) {
-        fs.writeFileSync(info.fd, dataBuffer);
+      if (err) return reject(Error("Server failure."));
 
-        const parser = new tcx.Parser(info.path);
-        const activity = parser.activity;
+      fs.writeFileSync(info.fd, dataBuffer);
 
-        // TODO: Max and min values?
+      const parser = new Parser(info.path);
+      const activity = parser.activity;
 
-        const calcStart = {
-          heartRateCount: 0,
-          cadenceCount: 0,
-          wattsCount: 0,
-        };
+      const calcStart = {
+        heartRateCount: 0,
+        cadenceCount: 0,
+        wattsCount: 0,
+      };
 
-        const reduceValues = activity.trackpoints.reduce((total, next) => {
-          total.heartRateCount += next["heart_rate_bpm"];
-          total.cadenceCount += next.cadence;
-          if (next.watts) total.wattsCount += next.watts;
-          return total;
-        }, calcStart);
+      const reduceValues = activity.trackpoints.reduce((total, next) => {
+        total.heartRateCount += next["heart_rate_bpm"] ?? 0;
+        total.cadenceCount += next.cadence ?? 0;
+        if (next.watts) total.wattsCount += next.watts;
+        return total;
+      }, calcStart);
 
-        const tpCount = activity.trackpoints.length;
+      const tpCount = activity.trackpoints.length;
 
-        const distanceMeters =
-          activity.trackpoints[activity.trackpoints.length - 1][
-            "distance_meters"
-          ];
-        const elapsedSeconds =
-          activity.trackpoints[activity.trackpoints.length - 1]["elapsed_sec"];
+      const distanceMeters =
+        activity.trackpoints[activity.trackpoints.length - 1][
+          "distance_meters"
+        ];
+      const elapsedSeconds =
+        activity.trackpoints[activity.trackpoints.length - 1]["elapsed_sec"];
 
-        Exercise.create({
-          user: userId,
-          group: null,
-          sport: activity.sport,
-          startingEpoch: activity.startingEpoch,
-          parsedDate: activity.activityId,
-          averageHeartRate: Math.round(reduceValues.heartRateCount / tpCount),
-          averageCadence: Math.round(reduceValues.cadenceCount / tpCount),
-          averageWatts:
-            reduceValues.wattsCount !== 0
-              ? Math.round(reduceValues.wattsCount / tpCount)
-              : null,
-          averagePace: roundTo(
-            elapsedSeconds / 60 / (distanceMeters / 1000),
-            2
-          ),
-          distanceMeters: distanceMeters,
-          elapsedSec: elapsedSeconds,
-          trackPoints: activity.trackpoints.map((tp) => {
-            return {
-              latitude: tp.latitude,
-              longitude: tp.longitude,
-              altitudeMeters: tp["altitude_meters"],
-              elapsedSec: tp["elapsed_sec"],
-            };
-          }),
+      Exercise.create({
+        user: userId,
+        group: null,
+        sport: activity.sport,
+        startingEpoch: activity.startingEpoch,
+        parsedDate: activity.activityId,
+        averageHeartRate: Math.round(reduceValues.heartRateCount / tpCount),
+        averageCadence: Math.round(reduceValues.cadenceCount / tpCount),
+        averageWatts:
+          reduceValues.wattsCount !== 0
+            ? Math.round(reduceValues.wattsCount / tpCount)
+            : null,
+        averagePace: roundTo(
+          elapsedSeconds ?? 0 / 60 / (distanceMeters ?? 0 / 1000),
+          2
+        ),
+        distanceMeters: distanceMeters,
+        elapsedSec: elapsedSeconds,
+        trackPoints: activity.trackpoints.map((tp) => {
+          return {
+            latitude: tp.latitude,
+            longitude: tp.longitude,
+            altitudeMeters: tp["altitude_meters"],
+            elapsedSec: tp["elapsed_sec"],
+          };
+        }),
+      })
+        .then(() => {
+          return resolve();
         })
-          .then(() => {
-            return resolve();
-          })
-          .catch(() => {
-            return reject(Error("Server failure."));
-          });
-      } else {
-        return reject(Error("Server failure."));
-      }
+        .catch(() => {
+          return reject(Error("Server failure."));
+        });
     });
   });
 };

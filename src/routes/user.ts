@@ -1,7 +1,7 @@
 export {}; // This is to combat the TS2451 error
 
-const express = require("express");
-const { body } = require("express-validator");
+import express from "express";
+import { body } from "express-validator";
 
 const { validRequest } = require("../utils");
 
@@ -17,7 +17,7 @@ router.post(
   "/polar-token",
   [body("code").not().isEmpty()],
   validRequest,
-  async (req, res) => polarToken(req, res)
+  async (req: express.Request, res: express.Response) => polarToken(req, res)
 );
 
 module.exports = router;
