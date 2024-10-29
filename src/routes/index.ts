@@ -16,4 +16,4 @@ router.use("/exercises", exercise);
 router.use("/routes", route);
 router.use("/groups", group);
 
-module.exports = router;
+export default router;

@@ -9,13 +9,7 @@ import { auth } from "express-oauth2-jwt-bearer";
 
 import { unless } from "./utils";
 
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config({
-    path: __dirname + "/./../.env.development.local",
-  });
-}
-
-const BaseRouter = require("./routes");
+import BaseRouter from "./routes";
 
 const app = express();
 
