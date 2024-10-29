@@ -1,8 +1,8 @@
 export {}; // This is to combat the TS2451 error
 
 import { Request, Response } from "express";
-import { Group } from "../models/group";
-import { Route } from "../models/route";
+import Group from "../models/group";
+import Route from "../models/route";
 
 const create = (req: Request, res: Response) => {
   let createdGroup: any; // TODO: fix

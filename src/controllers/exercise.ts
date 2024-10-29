@@ -1,8 +1,8 @@
 export {}; // This is to combat the TS2451 error
 
 import { Request, Response } from "express";
-import { Group } from "../models/group";
-import { Exercise } from "../models/exercise";
+import Group from "../models/group";
+import Exercise from "../models/exercise";
 
 const { createNew } = require("../utils/exercise");
 const { removeItemAll } = require("../utils");

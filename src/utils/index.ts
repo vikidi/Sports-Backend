@@ -1,8 +1,8 @@
 export {}; // This is to combat the TS2451 error
 
 import { Request, Response, NextFunction } from "express";
-
-const { validationResult } = require("express-validator");
+import { validationResult } from "express-validator";
+import { AppError, HttpCode } from "../exceptions/AppError";
 
 export const roundTo = (n: number, digits: number) => {
   let negative = false;
@@ -29,9 +29,13 @@ export const validRequest = (
 ) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    throw new AppError({
+      httpCode: HttpCode.BAD_REQUEST,
+      description: errors.array().join(", "),
+    });
   }
-  return next();
+
+  next();
 };
 
 export const getPolarAuthorization = () => {

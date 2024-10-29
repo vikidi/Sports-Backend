@@ -47,4 +47,4 @@ router.post(
   async (req: express.Request, res: express.Response) => updateGroup(req, res)
 );
 
-module.exports = router;
+export default router;

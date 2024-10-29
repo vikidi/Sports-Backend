@@ -28,4 +28,6 @@ const exerciseSchema = new Schema(
   { timestamps: true }
 );
 
-export const Exercise = model("Exercise", exerciseSchema);
+const Exercise = model("Exercise", exerciseSchema);
+
+export default Exercise;

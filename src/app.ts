@@ -1,6 +1,6 @@
 export {}; // This is to combat the TS2451 error
 
-import express, { Response, NextFunction } from "express";
+import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
@@ -8,6 +8,7 @@ import fileUpload from "express-fileupload";
 import { auth } from "express-oauth2-jwt-bearer";
 
 import { unless } from "./utils";
+import { errorHandler } from "./middleware/errorHandler";
 
 import BaseRouter from "./routes";
 
@@ -22,11 +23,6 @@ app.use(cors());
 
 app.use(fileUpload());
 app.use(express.json({ limit: "15mb" }));
-
-// Tests will handle database separately
-if (process.env.NODE_ENV !== "test") {
-  require("./database");
-}
 
 app.use(
   unless(
@@ -46,10 +42,11 @@ app.use(
   })
 );
 
-if (process.env.NODE_ENV !== "test") {
-  require("./services/polar-webhook");
-}
-
 app.use("/", BaseRouter);
+
+// Setup database and polar API connection
+import "./database";
+
+app.use(errorHandler.handleError);
 
 export default app;

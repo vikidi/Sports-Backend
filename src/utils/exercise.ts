@@ -4,13 +4,13 @@ import fs from "fs";
 import temp from "temp";
 import { Parser } from "tcx-js";
 
-const Exercise = require("../models/exercise");
+import Exercise from "../models/exercise";
 
-const { roundTo } = require("../utils");
+import { roundTo } from "../utils";
 
 temp.track();
 
-const createNew = (
+export const createNew = (
   userId: string,
   dataBuffer: string | NodeJS.ArrayBufferView
 ) => {
@@ -80,8 +80,4 @@ const createNew = (
         });
     });
   });
-};
-
-module.exports = {
-  createNew,
 };

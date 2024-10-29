@@ -1,7 +1,7 @@
 export {}; // This is to combat the TS2451 error
 
 import { Request, Response } from "express";
-import { Route } from "../models/route";
+import Route from "../models/route";
 
 const create = (req: Request, res: Response) => {
   Route.create({

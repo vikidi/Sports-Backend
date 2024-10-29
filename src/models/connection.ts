@@ -15,4 +15,4 @@ const connectionSchema = new Schema(
 
 const Connection = model("Connection", connectionSchema);
 
-module.exports = Connection;
+export default Connection;

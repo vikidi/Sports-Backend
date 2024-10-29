@@ -2,7 +2,7 @@ export {}; // This is to combat the TS2451 error
 
 import axios from "axios";
 import { Request, Response } from "express";
-import { User } from "../models/user";
+import User from "../models/user";
 
 const { createNew } = require("../utils/exercise");
 

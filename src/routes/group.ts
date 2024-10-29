@@ -22,4 +22,4 @@ router.get("/:id", async (req, res) => getOne(req, res));
 
 router.delete("/:id", async (req, res) => deleteOne(req, res));
 
-module.exports = router;
+export default router;

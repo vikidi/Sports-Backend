@@ -23,4 +23,6 @@ const routeSchema = new Schema(
   { timestamps: true }
 );
 
-export const Route = model("Route", routeSchema);
+const Route = model("Route", routeSchema);
+
+export default Route;
