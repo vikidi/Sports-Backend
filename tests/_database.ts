@@ -1,9 +1,9 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 /**
  * Connect to the test database.
  */
-const connect = async () => {
+export const connect = async () => {
   await mongoose.connect(
     `mongodb://testadminuser:testadminpass@localhost:27020/tests?retryWrites=true&w=majority`
   );
@@ -12,11 +12,6 @@ const connect = async () => {
 /**
  * Drop database and close the connection.
  */
-const closeDatabase = async () => {
+export const closeDatabase = async () => {
   await mongoose.connection.close();
-};
-
-module.exports = {
-  connect,
-  closeDatabase,
 };

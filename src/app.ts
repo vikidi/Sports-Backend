@@ -12,6 +12,8 @@ import { initDatabase } from "./database";
 
 const app = express();
 
+console.log(process.env.API_URL);
+
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("tiny"));
 }

@@ -1,17 +1,14 @@
-const mongoose = require("mongoose");
-const axios = require("axios").default;
-require("dotenv").config({ path: __dirname + "/./../.env.development.local" });
-
-const Exercise = require("../src/models/exercise");
-const Group = require("../src/models/group");
-
-const exerciseData = require("./data/exercises.json");
-const groupData = require("./data/groups.json");
+import mongoose from "mongoose";
+import axios from "axios";
+import Exercise from "../src/models/exercise";
+import Group from "../src/models/group";
+import exerciseData from "./data/exercises.json";
+import groupData from "./data/groups.json";
 
 /**
  * Clears database from all documents
  */
-const clearDb = async () => {
+export const clearDb = async () => {
   await Promise.all(
     Object.values(mongoose.connection.collections).map(async (collection) => {
       await collection.deleteMany({}).catch((err) => console.log(err)); // an empty mongodb selector object ({}) must be passed as the filter argument
@@ -21,10 +18,10 @@ const clearDb = async () => {
 
 /**
  * Gets auth0 user data for test user
- * @param {String} scope Scope to retrieve
- * @returns {Promise<String>} Promise with user data
+ * @param scope Scope to retrieve
+ * @returns Promise with user data
  */
-const getUser = (scope) => {
+export const getUser = (scope: string) => {
   let postOptions = {
     method: "POST",
     url: process.env.AUTH_ISSUER + "oauth/token",
@@ -35,49 +32,41 @@ const getUser = (scope) => {
       audience: process.env.AUTH_AUDIENCE,
       client_id: process.env.AUTH_CLIENT_ID,
       client_secret: process.env.AUTH_CLIENT_SECRET,
+      scope: scope,
     },
   };
 
-  if (scope) postOptions.data.scope = scope;
+  return new Promise(async (resolve, reject) => {
+    const response = await axios.request(postOptions);
 
-  return new Promise((resolve, reject) => {
-    let token;
-    axios
-      .request(postOptions)
-      .then((response) => {
-        if (!response.data.access_token)
-          return reject(new Error("No access token."));
+    if (!response.data.access_token)
+      return reject(new Error("No access token."));
 
-        token = `${response.data.token_type} ${response.data.access_token}`;
+    const token = `${response.data.token_type} ${response.data.access_token}`;
 
-        let getOptions = {
-          method: "GET",
-          url: process.env.AUTH_ISSUER + "userinfo",
-          headers: {
-            Authorization: token,
-          },
-        };
+    let getOptions = {
+      method: "GET",
+      url: process.env.AUTH_ISSUER + "userinfo",
+      headers: {
+        Authorization: token,
+      },
+    };
 
-        return axios.request(getOptions);
-      })
-      .then((res) => {
-        resolve({
-          token: token,
-          id: res.data.sub,
-        });
-      })
-      .catch((error) => {
-        reject(error);
-      });
+    const res = await axios.request(getOptions);
+
+    resolve({
+      token: token,
+      id: res.data.sub,
+    });
   });
 };
 
 /**
  * Generate random string
- * @param {Number} len Length of the string to be generated
+ * @param len Length of the string to be generated
  * @returns Generated string
  */
-const randomString = (len) => {
+export const randomString = (len: number): string => {
   let text = "";
   const charset = "abcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -91,7 +80,7 @@ const randomString = (len) => {
  * Get random mongodb ObjectId
  * @returns New random ObjectId
  */
-const randomMongoId = () => {
+export const randomMongoId = () => {
   return new mongoose.Types.ObjectId();
 };
 
@@ -99,17 +88,17 @@ const randomMongoId = () => {
  * Get random Auth0 user ID
  * @returns New random Auth0 user ID with auth0 prefix
  */
-const randomAuth0Id = () => {
+export const randomAuth0Id = () => {
   return `auth0|${randomString(24)}`;
 };
 
 /**
  * Saves valid mock exercise data into database
- * @param {Number} n How many exercises to save
- * @param {Array<Object>} overrideData Array of objects to override partially or fully the default mock data
- * @returns {Promise<Object[]>} Saved data in an array
+ * @param n How many exercises to save
+ * @param overrideData Array of objects to override partially or fully the default mock data
+ * @returns Saved data in an array
  */
-const saveExerciseMockData = async (n, overrideData) => {
+export const saveExerciseMockData = async (n: number, overrideData: any) => {
   if (n > exerciseData.length)
     throw new Error("Too many exercises requested with param 'n'");
 
@@ -119,9 +108,9 @@ const saveExerciseMockData = async (n, overrideData) => {
       let savedData = await new Exercise(override).save();
       return {
         ...override,
-        _id: savedData._doc._id.toString(),
-        createdAt: savedData._doc.createdAt?.toISOString(),
-        updatedAt: savedData._doc.updatedAt?.toISOString(),
+        _id: savedData._id.toString(),
+        createdAt: savedData.createdAt?.toISOString(),
+        updatedAt: savedData.updatedAt?.toISOString(),
         // __v should be never returned
       };
     })
@@ -132,11 +121,11 @@ const saveExerciseMockData = async (n, overrideData) => {
 
 /**
  * Saves valid mock group data into database
- * @param {Number} n How many groups to save
- * @param {Array<Object>} overrideData Array of objects to override partially or fully the default mock data
- * @returns {Promise<Object[]>} Saved data in an array
+ * @param n How many groups to save
+ * @param overrideData Array of objects to override partially or fully the default mock data
+ * @returns Saved data in an array
  */
-const saveGroupMockData = async (n, overrideData) => {
+export const saveGroupMockData = async (n: number, overrideData: any) => {
   if (n > groupData.length)
     throw new Error("Too many groups requested with param 'n'");
 
@@ -146,23 +135,13 @@ const saveGroupMockData = async (n, overrideData) => {
       let savedData = await new Group(override).save();
       return {
         ...override,
-        _id: savedData._doc._id.toString(),
-        createdAt: savedData._doc.createdAt?.toISOString(),
-        updatedAt: savedData._doc.updatedAt?.toISOString(),
+        _id: savedData._id.toString(),
+        createdAt: savedData.createdAt?.toISOString(),
+        updatedAt: savedData.updatedAt?.toISOString(),
         // __v should be never returned
       };
     })
   );
 
   return data;
-};
-
-module.exports = {
-  clearDb,
-  getUser,
-  randomString,
-  randomMongoId,
-  randomAuth0Id,
-  saveExerciseMockData,
-  saveGroupMockData,
 };

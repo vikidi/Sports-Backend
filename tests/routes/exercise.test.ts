@@ -1,25 +1,21 @@
-const request = require("supertest");
-
-const Exercise = require("../../src/models/exercise");
-const Group = require("../../src/models/group");
-
-const {
+import request from "supertest";
+import Exercise from "../../src/models/exercise";
+import Group from "../../src/models/group";
+import {
   clearDb,
   getUser,
   randomMongoId,
   randomAuth0Id,
   saveExerciseMockData,
   saveGroupMockData,
-} = require("../_helpers");
+} from "../_helpers";
+import { connect, closeDatabase } from "../_database";
+import app from "../../src/app";
 
-const database = require("../_database");
-
-const app = require("../../src/app");
-
-let userAuth0;
+let userAuth0: any; // TODO
 
 beforeAll(async () => {
-  await database.connect();
+  await connect();
   userAuth0 = await getUser("openid");
 });
 
@@ -27,7 +23,7 @@ beforeEach(async () => await clearDb());
 
 afterAll(async () => {
   await clearDb();
-  await database.closeDatabase();
+  await closeDatabase();
 });
 
 describe("GET /exercises/:id", () => {
@@ -146,7 +142,7 @@ describe("DELETE /exercises/:id", () => {
       { user: userAuth0.id },
     ]);
 
-    _ = await saveGroupMockData(1, [
+    await saveGroupMockData(1, [
       { _id: groupId, user: userAuth0.id, exercises: [exerciseDbData[0]._id] },
     ]);
 
@@ -167,7 +163,7 @@ describe("DELETE /exercises/:id", () => {
       expect.objectContaining({ _id: exerciseDbData[0]._id })
     );
 
-    expect(sutGroup.exercises).toBeEmpty();
+    expect(sutGroup?.exercises).toBeEmpty();
   });
 
   it("Exercise not found", async () => {
