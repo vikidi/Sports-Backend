@@ -2,11 +2,11 @@ export {}; // This is to combat the TS2451 error
 
 import express from "express";
 
-const user = require("./user");
-const connection = require("./connection");
-const exercise = require("./exercise");
-const route = require("./route");
-const group = require("./group");
+import user from "./user";
+import connection from "./connection";
+import exercise from "./exercise";
+import route from "./route";
+import group from "./group";
 
 const router = express.Router();
 

@@ -2,16 +2,16 @@ export {}; // This is to combat the TS2451 error
 
 import express from "express";
 
-const { create, myList, getOne, deleteOne } = require("../controllers/route");
+import { create, myList, getOne, deleteOne } from "../controllers/route";
 
 const router = express.Router();
 
-router.post("/create", async (req, res) => create(req, res));
+router.post("/create", create);
 
-router.get("/my-list", async (req, res) => myList(req, res));
+router.get("/my-list", myList);
 
-router.get("/:id", async (req, res) => getOne(req, res));
+router.get("/:id", getOne);
 
-router.delete("/:id", async (req, res) => deleteOne(req, res));
+router.delete("/:id", deleteOne);
 
 export default router;
