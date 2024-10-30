@@ -11,8 +11,8 @@ import { roundTo } from "../utils";
 temp.track();
 
 export const createNew = (
-  userId: string,
-  dataBuffer: string | NodeJS.ArrayBufferView
+  userId: string | undefined,
+  dataBuffer: NodeJS.ArrayBufferView
 ) => {
   return new Promise<void>((resolve, reject) => {
     temp.open("exercise", (err, info) => {

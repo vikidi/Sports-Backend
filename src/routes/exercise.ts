@@ -2,49 +2,40 @@ export {}; // This is to combat the TS2451 error
 
 import express from "express";
 import { body, param } from "express-validator";
-
-const {
+import multer, { memoryStorage } from "multer";
+import {
   create,
   myList,
   getOne,
   updateGroup,
   deleteOne,
-} = require("../controllers/exercise");
+} from "../controllers/exercise";
+import { validRequest } from "../middleware/validateRequest";
 
-const { validRequest } = require("../utils");
+const upload = multer({ storage: memoryStorage() });
 
 const router = express.Router();
 
-router.post("", async (req, res) => create(req, res));
+router.post("", upload.single("exercise"), create);
 
-router.get("/my-list", async (req, res) => myList(req, res));
+router.get("/my-list", myList);
 
 /**
  * Get one own exercise
  */
-router.get(
-  "/:id",
-  [param("id").isMongoId()],
-  validRequest,
-  async (req: express.Request, res: express.Response) => getOne(req, res)
-);
+router.get("/:id", [param("id").isMongoId()], validRequest, getOne);
 
 /**
  * Delete one own exercise
  */
-router.delete(
-  "/:id",
-  [param("id").isMongoId()],
-  validRequest,
-  async (req: express.Request, res: express.Response) => deleteOne(req, res)
-);
+router.delete("/:id", [param("id").isMongoId()], validRequest, deleteOne);
 
 // TODO: Patch?
 router.post(
   "/:id/update-group",
   [body("newGroup").isString()],
   validRequest,
-  async (req: express.Request, res: express.Response) => updateGroup(req, res)
+  updateGroup
 );
 
 export default router;

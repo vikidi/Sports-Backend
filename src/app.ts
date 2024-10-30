@@ -4,7 +4,6 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
-import fileUpload from "express-fileupload";
 import { auth } from "express-oauth2-jwt-bearer";
 import { unless } from "./utils";
 import { errorHandler } from "./middleware/errorHandler";
@@ -20,7 +19,6 @@ if (process.env.NODE_ENV === "development") {
 app.use(helmet());
 app.use(cors());
 
-app.use(fileUpload());
 app.use(express.json({ limit: "15mb" }));
 
 app.use(
