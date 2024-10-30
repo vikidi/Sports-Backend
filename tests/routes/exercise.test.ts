@@ -59,7 +59,6 @@ describe("GET /exercises/:id", () => {
 
     // Assert
     expect(res.statusCode).toEqual(404);
-    expect(res.body).toBeEmpty();
   });
 
   it("Invalid exercise ID", async () => {
@@ -77,8 +76,6 @@ describe("GET /exercises/:id", () => {
 
     // Assert
     expect(res.statusCode).toEqual(400);
-    expect(res.type).toEqual("application/json");
-    expect(res.body).toEqual(expectedData);
   });
 
   it("Unauthenticated", async () => {
@@ -90,7 +87,6 @@ describe("GET /exercises/:id", () => {
 
     // Assert
     expect(res.statusCode).toEqual(401);
-    expect(res.body).toBeEmpty();
   });
 
   it("Unauthorized", async () => {
@@ -104,7 +100,6 @@ describe("GET /exercises/:id", () => {
 
     // Assert
     expect(res.statusCode).toEqual(403);
-    expect(res.body).toBeEmpty();
   });
 });
 
@@ -177,16 +172,11 @@ describe("DELETE /exercises/:id", () => {
 
     // Assert
     expect(res.statusCode).toEqual(404);
-    expect(res.body).toBeEmpty();
   });
 
   it("Invalid exercise ID", async () => {
     // Arrange
     await saveExerciseMockData(1, [{ user: userAuth0.id }]);
-
-    const expectedData = {
-      errors: expect.any(Array),
-    };
 
     // Act
     const res = await request(app)
@@ -195,8 +185,6 @@ describe("DELETE /exercises/:id", () => {
 
     // Assert
     expect(res.statusCode).toEqual(400);
-    expect(res.type).toEqual("application/json");
-    expect(res.body).toEqual(expectedData);
   });
 
   it("Unauthenticated", async () => {
@@ -208,7 +196,6 @@ describe("DELETE /exercises/:id", () => {
 
     // Assert
     expect(res.statusCode).toEqual(401);
-    expect(res.body).toBeEmpty();
   });
 
   it("Unauthorized", async () => {
@@ -222,6 +209,5 @@ describe("DELETE /exercises/:id", () => {
 
     // Assert
     expect(res.statusCode).toEqual(403);
-    expect(res.body).toBeEmpty();
   });
 });

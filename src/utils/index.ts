@@ -50,7 +50,7 @@ export function removeItemOnce<T>(arr: Array<T>, value: T): Array<T> {
 export function removeItemAll<T>(arr: Array<T>, value: T): Array<T> {
   let i = 0;
   while (i < arr.length) {
-    if (arr[i] === value) {
+    if (String(arr[i]) === String(value)) {
       arr.splice(i, 1);
     } else {
       ++i;

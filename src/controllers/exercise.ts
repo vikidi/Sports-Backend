@@ -67,7 +67,7 @@ export const getOne = async (
     );
   }
 
-  const { user, ...sendData } = exercise;
+  const { user, ...sendData } = exercise.toObject();
   res.json(sendData);
 };
 
