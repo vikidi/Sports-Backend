@@ -6,11 +6,10 @@ import helmet from "helmet";
 import morgan from "morgan";
 import fileUpload from "express-fileupload";
 import { auth } from "express-oauth2-jwt-bearer";
-
 import { unless } from "./utils";
 import { errorHandler } from "./middleware/errorHandler";
-
 import BaseRouter from "./routes";
+import { initDatabase } from "./database";
 
 const app = express();
 
@@ -45,7 +44,7 @@ app.use(
 app.use("/", BaseRouter);
 
 // Setup database and polar API connection
-import "./database";
+initDatabase();
 
 app.use(errorHandler.handleError);
 
