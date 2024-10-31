@@ -1,9 +1,22 @@
 import mongoose from "mongoose";
 import axios from "axios";
-import Exercise from "../src/models/exercise";
-import Group from "../src/models/group";
-import exerciseData from "./data/exercises.json";
-import groupData from "./data/groups.json";
+import Exercise from "../../src/models/exercise";
+import Group from "../../src/models/group";
+import exerciseData from "../data/exercises.json";
+import groupData from "../data/groups.json";
+import { Auth0User } from "../common/types";
+
+let auth0User: Auth0User;
+
+/**
+ * Get Auth0 user id and token. Uses cache.
+ * @returns Auth0 user id and token
+ */
+export const getAuth0User = async () => {
+  if (!auth0User) auth0User = await getUser("openid");
+
+  return auth0User;
+};
 
 /**
  * Clears database from all documents
@@ -21,7 +34,7 @@ export const clearDb = async () => {
  * @param scope Scope to retrieve
  * @returns Promise with user data
  */
-export const getUser = (scope: string) => {
+export const getUser = (scope: string): Promise<Auth0User> => {
   let postOptions = {
     method: "POST",
     url: process.env.AUTH_ISSUER + "oauth/token",
@@ -103,17 +116,19 @@ export const saveExerciseMockData = async (n: number, overrideData: any) => {
     throw new Error("Too many exercises requested with param 'n'");
 
   let data = await Promise.all(
-    (n ? exerciseData.slice(0, n) : exerciseData).map(async (data, i) => {
-      let override = { ...data, ...overrideData?.[i] };
-      let savedData = await new Exercise(override).save();
-      return {
-        ...override,
-        _id: savedData._id.toString(),
-        createdAt: savedData.createdAt?.toISOString(),
-        updatedAt: savedData.updatedAt?.toISOString(),
-        // __v should be never returned
-      };
-    })
+    (n ? exerciseData.slice(0, n) : exerciseData).map(
+      async (data: any, i: number) => {
+        let override = { ...data, ...overrideData?.[i] };
+        let savedData = await new Exercise(override).save();
+        return {
+          ...override,
+          _id: savedData._id.toString(),
+          createdAt: savedData.createdAt?.toISOString(),
+          updatedAt: savedData.updatedAt?.toISOString(),
+          // __v should be never returned
+        };
+      }
+    )
   );
 
   return data;
@@ -130,17 +145,19 @@ export const saveGroupMockData = async (n: number, overrideData: any) => {
     throw new Error("Too many groups requested with param 'n'");
 
   let data = await Promise.all(
-    (n ? groupData.slice(0, n) : groupData).map(async (data, i) => {
-      let override = { ...data, ...overrideData?.[i] };
-      let savedData = await new Group(override).save();
-      return {
-        ...override,
-        _id: savedData._id.toString(),
-        createdAt: savedData.createdAt?.toISOString(),
-        updatedAt: savedData.updatedAt?.toISOString(),
-        // __v should be never returned
-      };
-    })
+    (n ? groupData.slice(0, n) : groupData).map(
+      async (data: any, i: number) => {
+        let override = { ...data, ...overrideData?.[i] };
+        let savedData = await new Group(override).save();
+        return {
+          ...override,
+          _id: savedData._id.toString(),
+          createdAt: savedData.createdAt?.toISOString(),
+          updatedAt: savedData.updatedAt?.toISOString(),
+          // __v should be never returned
+        };
+      }
+    )
   );
 
   return data;

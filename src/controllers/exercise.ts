@@ -23,10 +23,10 @@ export const create = async (
 
   await createNew(req.user!.id, req.file.buffer);
 
-  res.json();
+  res.status(HttpCode.NO_CONTENT).json();
 };
 
-export const myList = async (
+export const getAll = async (
   req: Request,
   res: Response,
   _next: NextFunction
@@ -34,7 +34,7 @@ export const myList = async (
   const exercise = await Exercise.find(
     { user: req.user!.id },
     "_id sport startingEpoch parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence averageWatts"
-  ).exec();
+  );
 
   res.json(exercise);
 };

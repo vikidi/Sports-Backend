@@ -2,7 +2,7 @@ export {}; // This is to combat the TS2451 error
 
 import axios from "axios";
 
-import { getPolarAuthorization } from "../utils";
+import { getPolarAuthorization } from "../utils/polar";
 import Connection from "../models/connection";
 
 export function checkPolarApiConnection() {

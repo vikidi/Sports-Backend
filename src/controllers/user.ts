@@ -4,7 +4,7 @@ import axios from "axios";
 import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import { AppError, HttpCode } from "../exceptions/AppError";
-import { getPolarAuthorization } from "../utils";
+import { getPolarAuthorization } from "../utils/polar";
 
 export const getSelf = async (
   req: Request,

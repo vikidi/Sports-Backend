@@ -1,12 +1,12 @@
 export {}; // This is to combat the TS2451 error
 
-import { Request, Response, NextFunction } from "express";
-
 export const roundTo = (n: number, digits: number) => {
   let negative = false;
-  if (digits === undefined) {
-    digits = 0;
+
+  if (Number.isNaN(digits)) {
+    return n.toString();
   }
+
   if (n < 0) {
     negative = true;
     n = n * -1;
@@ -18,25 +18,6 @@ export const roundTo = (n: number, digits: number) => {
     n = n * -1;
   }
   return n.toFixed(digits);
-};
-
-export const getPolarAuthorization = () => {
-  return Buffer.from(
-    `${process.env.POLAR_CLIENT_ID}:${process.env.POLAR_CLIENT_SECRET}`
-  ).toString("base64");
-};
-
-export const unless = (
-  path: string,
-  middleware: (req: Request, res: Response, next: NextFunction) => void
-) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (path === req.path) {
-      return next();
-    } else {
-      return middleware(req, res, next);
-    }
-  };
 };
 
 export function removeItemOnce<T>(arr: Array<T>, value: T): Array<T> {

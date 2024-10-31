@@ -3,20 +3,22 @@ import Exercise from "../../src/models/exercise";
 import Group from "../../src/models/group";
 import {
   clearDb,
-  getUser,
   randomMongoId,
   randomAuth0Id,
   saveExerciseMockData,
   saveGroupMockData,
-} from "../_helpers";
-import { connect, closeDatabase } from "../_database";
+  getAuth0User,
+} from "../utils/_helpers";
+import { connect, closeDatabase } from "../utils/_database";
 import app from "../../src/app";
+import path from "path";
+import { Auth0User } from "../common/types";
 
-let userAuth0: any; // TODO
+let userAuth0: Auth0User;
 
 beforeAll(async () => {
   await connect();
-  userAuth0 = await getUser("openid");
+  userAuth0 = await getAuth0User();
 });
 
 beforeEach(async () => await clearDb());
@@ -24,6 +26,136 @@ beforeEach(async () => await clearDb());
 afterAll(async () => {
   await clearDb();
   await closeDatabase();
+});
+
+describe("POST /exercises", () => {
+  it("Save exercise file", async () => {
+    // Arrange
+
+    // Act
+    const res = await request(app)
+      .post(`/exercises`)
+      .set("Authorization", userAuth0.token)
+      .attach(
+        "exercise",
+        path.resolve(
+          __dirname,
+          "../data/Ville_Saarinen_2023-09-05_19-11-30.TCX"
+        )
+      );
+
+    // Assert
+    const allExercises = await Exercise.find({});
+
+    expect(res.statusCode).toEqual(204);
+    expect(res.body).toBeEmpty();
+
+    expect(allExercises).toHaveLength(1);
+    expect(allExercises).toEqual(
+      expect.arrayContaining([expect.objectContaining({ user: userAuth0.id })])
+    );
+  });
+
+  it("Missing file", async () => {
+    // Arrange
+
+    // Act
+    const res = await request(app)
+      .post(`/exercises`)
+      .set("Authorization", userAuth0.token);
+
+    // Assert
+    const allExercises = await Exercise.find({});
+
+    expect(res.statusCode).toEqual(400);
+
+    expect(allExercises).toHaveLength(0);
+  });
+
+  it("Incorrect file", async () => {
+    // Arrange
+
+    // Act
+    const res = await request(app)
+      .post(`/exercises`)
+      .set("Authorization", userAuth0.token)
+      .attach("exercise", path.resolve(__dirname, "../data/routes.json"));
+
+    // Assert
+    const allExercises = await Exercise.find({});
+
+    expect(res.statusCode).toEqual(400);
+
+    expect(allExercises).toHaveLength(0);
+  });
+
+  it("Unauthenticated", async () => {
+    // Arrange
+    await saveExerciseMockData(1, [{ user: userAuth0.id }]);
+
+    // Act
+    const res = await request(app).get(`/exercises`);
+
+    // Assert
+    expect(res.statusCode).toEqual(401);
+  });
+});
+
+describe("GET /exercises", () => {
+  it("Get own exercises", async () => {
+    // Arrange
+    const dbData = await saveExerciseMockData(3, [
+      { user: userAuth0.id },
+      { user: userAuth0.id },
+      { user: randomAuth0Id() },
+    ]);
+
+    dbData.forEach((element: any) => {
+      delete element.user;
+      delete element.createdAt;
+      delete element.updatedAt;
+      delete element.group;
+      delete element.trackPoints;
+    });
+    const expectedData = [dbData[0], dbData[1]];
+
+    // Act
+    const res = await request(app)
+      .get(`/exercises`)
+      .set("Authorization", userAuth0.token);
+
+    // Assert
+    expect(res.statusCode).toEqual(200);
+    expect(res.type).toEqual("application/json");
+
+    expect(res.body).toEqual(expectedData);
+  });
+
+  it("No own exercises", async () => {
+    // Arrange
+    await saveExerciseMockData(1, [{ user: randomAuth0Id() }]);
+
+    // Act
+    const res = await request(app)
+      .get(`/exercises`)
+      .set("Authorization", userAuth0.token);
+
+    // Assert
+    expect(res.statusCode).toEqual(200);
+    expect(res.type).toEqual("application/json");
+    expect(res.body).toBeEmpty();
+  });
+
+  it("Unauthenticated", async () => {
+    // Arrange
+    await saveExerciseMockData(1, [{ user: userAuth0.id }]);
+
+    // Act
+    const res = await request(app).get(`/exercises`);
+
+    // Assert
+    expect(res.statusCode).toEqual(401);
+  });
 });
 
 describe("GET /exercises/:id", () => {
@@ -64,10 +196,6 @@ describe("GET /exercises/:id", () => {
   it("Invalid exercise ID", async () => {
     // Arrange
     await saveExerciseMockData(1, [{ user: userAuth0.id }]);
-
-    const expectedData = {
-      errors: expect.any(Array),
-    };
 
     // Act
     const res = await request(app)

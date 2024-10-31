@@ -27,7 +27,7 @@ export const create = async (
   res.json(createdGroup);
 };
 
-export const myList = async (
+export const getAll = async (
   req: Request,
   res: Response,
   _next: NextFunction
@@ -100,13 +100,18 @@ export const deleteOne = async (
     );
   }
 
-  const route = await Route.findById(group); // TODO: Not working! Find the route for the group
+  if (group.route) {
+    const route = await Route.findById(group.route);
 
-  route!.groups = route!.groups.filter(
-    (x) => x._id.toString() !== req.params.id
-  );
+    route!.groups = route!.groups.filter(
+      (x) => x._id.toString() !== req.params.id
+    );
 
-  await route!.save();
+    await route!.save();
+  }
+
+  // TODO: Fix exercises
+
   await group.deleteOne();
 
   res.status(HttpCode.NO_CONTENT).json();

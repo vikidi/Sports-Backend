@@ -5,7 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { auth } from "express-oauth2-jwt-bearer";
-import { unless } from "./utils";
+import unless from "./middleware/unless";
 import { errorHandler } from "./middleware/errorHandler";
 import BaseRouter from "./routes";
 import { initDatabase } from "./database";

@@ -7,6 +7,7 @@ import { Parser } from "tcx-js";
 import Exercise from "../models/exercise";
 
 import { roundTo } from "../utils";
+import { AppError, HttpCode } from "../exceptions/AppError";
 
 temp.track();
 
@@ -20,7 +21,18 @@ export const createNew = (
 
       fs.writeFileSync(info.fd, dataBuffer);
 
-      const parser = new Parser(info.path);
+      let parser;
+      try {
+        parser = new Parser(info.path);
+      } catch {
+        return reject(
+          new AppError({
+            httpCode: HttpCode.BAD_REQUEST,
+            description: "File format incorrect.",
+          })
+        );
+      }
+
       const activity = parser.activity;
 
       const calcStart = {

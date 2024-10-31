@@ -8,9 +8,9 @@ import { polarToken, create, getSelf } from "../controllers/user";
 
 const router = express.Router();
 
-router.get("/self", getSelf);
+router.get("", getSelf);
 
-router.post("/create", create);
+router.post("", create);
 
 router.post(
   "/polar-token",

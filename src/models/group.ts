@@ -6,6 +6,7 @@ const groupSchema = new Schema(
   {
     user: { type: String, ref: "User" },
     exercises: [{ type: Schema.Types.ObjectId, ref: "Exercise" }],
+    route: { type: Schema.Types.ObjectId, ref: "Route" },
     name: {
       type: String,
       default: "Default Name",

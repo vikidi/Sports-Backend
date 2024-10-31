@@ -19,7 +19,7 @@ export const create = async (
   res.json(newData);
 };
 
-export const myList = async (
+export const getAll = async (
   req: Request,
   res: Response,
   _next: NextFunction
@@ -90,6 +90,8 @@ export const deleteOne = async (
   _next: NextFunction
 ) => {
   await Route.findOneAndDelete({ _id: req.params.id, user: req.user!.id });
+
+  // TODO: Group? Exercises?
 
   res.status(HttpCode.NO_CONTENT).json();
 };

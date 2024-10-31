@@ -5,7 +5,7 @@ import { body, param } from "express-validator";
 import multer, { memoryStorage } from "multer";
 import {
   create,
-  myList,
+  getAll,
   getOne,
   updateGroup,
   deleteOne,
@@ -16,9 +16,15 @@ const upload = multer({ storage: memoryStorage() });
 
 const router = express.Router();
 
+/**
+ * Create one exercise
+ */
 router.post("", upload.single("exercise"), create);
 
-router.get("/my-list", myList);
+/**
+ * Get all own exercises
+ */
+router.get("", getAll);
 
 /**
  * Get one own exercise

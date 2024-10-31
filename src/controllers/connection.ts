@@ -4,6 +4,7 @@ import axios from "axios";
 import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import { createNew } from "../utils/exercise";
+import { HttpCode } from "../exceptions/AppError";
 
 export const polarWebhook = async (
   req: Request,
@@ -11,7 +12,7 @@ export const polarWebhook = async (
   _next: NextFunction
 ) => {
   if (req.body.event !== "EXERCISE") {
-    res.json();
+    res.status(HttpCode.NO_CONTENT).json();
     return;
   }
 
@@ -26,5 +27,5 @@ export const polarWebhook = async (
 
   await createNew(req.user!.id, Buffer.from(response.data, "utf8"));
 
-  res.json();
+  res.status(HttpCode.NO_CONTENT).json();
 };
