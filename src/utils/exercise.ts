@@ -70,7 +70,7 @@ export const createNew = (
             ? Math.round(reduceValues.wattsCount / tpCount)
             : null,
         averagePace: roundTo(
-          elapsedSeconds ?? 0 / 60 / (distanceMeters ?? 0 / 1000),
+          (elapsedSeconds ?? 0) / 60 / ((distanceMeters ?? 0) / 1000),
           2
         ),
         distanceMeters: distanceMeters,

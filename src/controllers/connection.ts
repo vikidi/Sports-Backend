@@ -11,21 +11,24 @@ export const polarWebhook = async (
   res: Response,
   _next: NextFunction
 ) => {
-  if (req.body.event !== "EXERCISE") {
+  if (req.body.event === "PING") {
+    res.sendStatus(HttpCode.OK);
+    return;
+  } else if (req.body.event === "EXERCISE") {
+    const user = await User.findOne({ polarId: req.body["user_id"] });
+
+    const response = await axios.get(`${req.body.url}/tcx`, {
+      headers: {
+        Accept: "application/vnd.garmin.tcx+xml",
+        Authorization: `Bearer ${user!.polarToken}`,
+      },
+    });
+
+    await createNew(req.user!.id, Buffer.from(response.data, "utf8"));
+
     res.status(HttpCode.NO_CONTENT).json();
     return;
   }
 
-  const user = await User.findOne({ polarId: req.body["user_id"] });
-
-  const response = await axios.get(`${req.body.url}/tcx`, {
-    headers: {
-      Accept: "application/vnd.garmin.tcx+xml",
-      Authorization: `Bearer ${user!.polarToken}`,
-    },
-  });
-
-  await createNew(req.user!.id, Buffer.from(response.data, "utf8"));
-
-  res.status(HttpCode.NO_CONTENT).json();
+  res.status(HttpCode.BAD_REQUEST).json();
 };

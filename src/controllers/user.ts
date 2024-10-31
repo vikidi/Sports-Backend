@@ -30,7 +30,7 @@ export const create = async (
   res: Response,
   _next: NextFunction
 ) => {
-  const user = User.findById(req.user!.id);
+  const user = await User.findById(req.user!.id);
 
   if (user !== null) {
     res.status(HttpCode.NO_CONTENT).json();
