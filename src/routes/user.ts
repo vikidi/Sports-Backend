@@ -1,6 +1,6 @@
 export {}; // This is to combat the TS2451 error
 
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import { body } from "express-validator";
 import { validRequest } from "../middleware/validateRequest";
 

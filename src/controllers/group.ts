@@ -12,7 +12,7 @@ export const create = async (
 ) => {
   const group = await Group.create({
     user: req.user!.id,
-    route: req.body.routeId,
+    route: req.body.routeId.toString(),
     exercises: [],
   });
 
