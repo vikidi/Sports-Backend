@@ -5,6 +5,8 @@ import { Request, Response, NextFunction } from "express";
 import User from "../models/user";
 import { createNew } from "../utils/exercise";
 import { HttpCode } from "../exceptions/AppError";
+import Connection from "../models/connection";
+import { calculateHmac } from "../utils/signatures";
 
 const schemesList = ["https:"];
 const domainsList = ["www.polaraccesslink.com", "polaraccesslink.com"];
@@ -14,15 +16,15 @@ export const polarWebhook = async (
   res: Response,
   _next: NextFunction
 ) => {
-  if (req.body.event === "PING") {
-    // TODO: Save signature_secret_key
-    // TODO: Check Polar-Webhook-Signature
+  if (!validateRequestSignature(req)) {
+    res.status(HttpCode.BAD_REQUEST).json();
+    return;
+  }
 
+  if (req.body.event === "PING") {
     res.sendStatus(HttpCode.OK);
     return;
   } else if (req.body.event === "EXERCISE") {
-    // TODO: Check Polar-Webhook-Signature
-
     const user = await User.findOne({
       polarId: req.body["user_id"].toString(),
     });
@@ -51,4 +53,16 @@ export const polarWebhook = async (
   }
 
   res.status(HttpCode.BAD_REQUEST).json();
+};
+
+const validateRequestSignature = async (req: Request) => {
+  // Check request payload signature
+  const signatureHeader = req.header("Polar-Webhook-Signature");
+  const connection = await Connection.findById("polar-webhook");
+  return (
+    signatureHeader &&
+    connection?.signatureSecretKey !== null &&
+    calculateHmac(req.body, connection?.signatureSecretKey ?? "") ===
+      signatureHeader
+  );
 };

@@ -55,31 +55,44 @@ export const checkPolarApiConnection = async () => {
     if (
       connectionPolar[0]?.url ===
         `${process.env.API_URL}/connections/polar-webhook` &&
-      connectionDb?.url === `${process.env.API_URL}/connections/polar-webhook`
+      connectionDb?.url ===
+        `${process.env.API_URL}/connections/polar-webhook` &&
+      connectionDb?.signatureSecretKey !== null
     ) {
       return;
     }
 
-    console.log(connectionPolar);
+    // Create new connection to Polar and DB if connection or signature key are not found from DB
+    // This is to get new signature secret, which is only received while creating new connection
+    if (!connectionDb?.signatureSecretKey) {
+      // Delete old connection from Polar
+      await axios.delete(
+        `https://www.polaraccesslink.com/v3/webhooks/${connectionPolar[0].id}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Basic ${getPolarAuthorization()}`,
+          },
+        }
+      );
 
-    const axiosRes = await axios.patch(
-      `https://www.polaraccesslink.com/v3/webhooks/${connectionPolar[0].id}`,
-      {
-        events: ["EXERCISE"],
-        url: `${process.env.API_URL}/connections/polar-webhook`,
-      },
-      {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          Authorization: `Basic ${getPolarAuthorization()}`,
+      // Request new connection from Polar API
+      const newConnectionRes = await axios.post(
+        "https://www.polaraccesslink.com/v3/webhooks",
+        {
+          events: ["EXERCISE"],
+          url: `${process.env.API_URL}/connections/polar-webhook`,
         },
-      }
-    );
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Basic ${getPolarAuthorization()}`,
+          },
+        }
+      );
 
-    const newConnection = axiosRes!.data.data;
-    // Create new connection to DB if not found
-    if (!connectionDb) {
+      // Add the new connection to DB
+      const newConnection = newConnectionRes.data.data;
       await Connection.create({
         _id: "polar-webhook",
         externalId: newConnection.id,
@@ -89,8 +102,24 @@ export const checkPolarApiConnection = async () => {
       });
     }
 
-    // Update connection in DB
+    // Update connection in Polar and DB
     else {
+      const axiosRes = await axios.patch(
+        `https://www.polaraccesslink.com/v3/webhooks/${connectionPolar[0].id}`,
+        {
+          events: ["EXERCISE"],
+          url: `${process.env.API_URL}/connections/polar-webhook`,
+        },
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+            Authorization: `Basic ${getPolarAuthorization()}`,
+          },
+        }
+      );
+
+      const newConnection = axiosRes!.data.data;
       await Connection.findByIdAndUpdate("polar-webhook", {
         events: newConnection.events,
         url: newConnection.url,
