@@ -1,11 +1,12 @@
 import http from "http";
 import app from "./app";
+import logger from "./services/logger";
 
 const serverListenPort = normalizePort(process.env.PORT || "5050");
 app.set("port", serverListenPort);
 const server = http.createServer(app);
 server.listen(serverListenPort, () => {
-  console.log("App running in port " + serverListenPort);
+  logger.info("App running in port " + serverListenPort);
 });
 
 function normalizePort(val: string) {

@@ -8,12 +8,18 @@ import exercise from "./exercise";
 import route from "./route";
 import group from "./group";
 
-const router = express.Router();
+const baseRouter = express.Router();
+const publicRouter = express.Router();
+const authenticatedRouter = express.Router();
 
-router.use("/users", user);
-router.use("/connections", connection);
-router.use("/exercises", exercise);
-router.use("/routes", route);
-router.use("/groups", group);
+publicRouter.use("/connections", connection);
 
-export default router;
+authenticatedRouter.use("/users", user);
+authenticatedRouter.use("/exercises", exercise);
+authenticatedRouter.use("/routes", route);
+authenticatedRouter.use("/groups", group);
+
+baseRouter.use("/public", publicRouter);
+baseRouter.use("/auth", authenticatedRouter);
+
+export default baseRouter;
