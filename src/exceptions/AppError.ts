@@ -3,10 +3,19 @@ export enum HttpCode {
   CREATED = 201,
   NO_CONTENT = 204,
   BAD_REQUEST = 400,
-  UNAUTHORIZED = 401, // In reality this means unauthenticated
-  FORBIDDEN = 403, // In reality this means unauthorized
+
+  /**
+   * In reality this means unauthenticated
+   */
+  UNAUTHORIZED = 401,
+
+  /**
+   * In reality this means unauthorized
+   */
+  FORBIDDEN = 403,
   NOT_FOUND = 404,
   INTERNAL_SERVER_ERROR = 500,
+  NOT_IMPLEMENTED = 501,
 }
 
 interface AppErrorArgs {

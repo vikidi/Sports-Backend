@@ -7,7 +7,7 @@ import {
   create,
   getAll,
   getOne,
-  updateGroup,
+  patch,
   deleteOne,
 } from "../controllers/exercise";
 import { validRequest } from "../middleware/validateRequest";
@@ -36,12 +36,6 @@ router.get("/:id", [param("id").isMongoId()], validRequest, getOne);
  */
 router.delete("/:id", [param("id").isMongoId()], validRequest, deleteOne);
 
-// TODO: Patch?
-router.post(
-  "/:id/update-group",
-  [body("newGroup").isString()],
-  validRequest,
-  updateGroup
-);
+router.patch("/:id", patch);
 
 export default router;

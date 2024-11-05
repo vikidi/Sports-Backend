@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError, HttpCode } from "../exceptions/AppError";
 import { UnauthorizedError } from "express-oauth2-jwt-bearer";
+import logger from "../services/logger";
 
 class ErrorHandler {
   private readonly isTrustedAppError = (error: Error): boolean => {
@@ -21,48 +22,69 @@ class ErrorHandler {
 
   private readonly handleAuthError = (
     error: UnauthorizedError,
-    response: Response
+    req: Request,
+    res: Response
   ): void => {
-    response
+    res
       .status(HttpCode.UNAUTHORIZED)
       .json({ name: error.name, message: error.message });
+
+    logger.warn("Unauthorized attempt", {
+      user: req.user?.id,
+      path: req.path,
+      name: error.name,
+      message: error.message,
+    });
   };
 
   private readonly handleTrustedError = (
     error: AppError,
-    response: Response
+    req: Request,
+    res: Response
   ): void => {
-    response
+    res
       .status(error.httpCode)
       .json({ name: error.name, message: error.message });
+
+    logger.error("Application error", {
+      user: req.user?.id,
+      path: req.path,
+      name: error.name,
+      message: error.message,
+    });
   };
 
   private readonly handleCriticalError = (
     error: Error | AppError,
-    response?: Response
+    req: Request,
+    res?: Response
   ): void => {
-    if (response) {
-      response
+    if (res) {
+      res
         .status(HttpCode.INTERNAL_SERVER_ERROR)
         .json({ message: "Internal server error" });
     }
 
-    console.log("Application encountered a critical error.");
-    console.log(error.message);
+    logger.crit("Application encountered a critical error.", {
+      user: req.user?.id,
+      path: req.path,
+      name: error.name,
+      message: error.message,
+    });
   };
 
   public handleError = (
     error: Error | AppError | UnauthorizedError,
-    _req: Request,
-    response: Response,
+    req: Request,
+    res: Response,
     _next: NextFunction
   ): void => {
-    if (this.isAuthError(error) && response) {
-      this.handleAuthError(error as UnauthorizedError, response);
-    } else if (this.isTrustedAppError(error) && response) {
-      this.handleTrustedError(error as AppError, response);
+    if (this.isAuthError(error) && res) {
+      this.handleAuthError(error as UnauthorizedError, req, res);
+    } else if (this.isTrustedAppError(error) && req) {
+      this.handleTrustedError(error as AppError, req, res);
     } else {
-      this.handleCriticalError(error, response);
+      this.handleCriticalError(error, req, res);
     }
   };
 }

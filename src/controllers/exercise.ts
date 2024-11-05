@@ -71,7 +71,7 @@ export const getOne = async (
   res.json(sendData);
 };
 
-export const updateGroup = async (
+export const patch = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -96,56 +96,50 @@ export const updateGroup = async (
     );
   }
 
-  if (exercise.group === req.body.newGroup) {
-    res.json();
-    return;
-  }
+  // Update groups' references to this exercise
+  if (exercise.group !== req.body.group) {
+    let newGroup;
+    if (req.body.group && req.body.group !== "") {
+      newGroup = await Group.findById(req.body.group, "_id user exercises");
 
-  let newGroup;
-  if (req.body.newGroup && req.body.newGroup !== "") {
-    newGroup = await Group.findById(req.body.newGroup, "_id user exercises");
+      if (!newGroup) {
+        return next(
+          new AppError({
+            httpCode: HttpCode.NOT_FOUND,
+            description: "New group not found.",
+          })
+        );
+      }
 
-    if (!newGroup) {
-      return next(
-        new AppError({
-          httpCode: HttpCode.NOT_FOUND,
-          description: "Group not found.",
-        })
-      );
+      if (newGroup.user !== req.user!.id) {
+        return next(
+          new AppError({
+            httpCode: HttpCode.FORBIDDEN,
+            description: "User unauthorized to use the new group.",
+          })
+        );
+      }
     }
 
-    if (newGroup.user !== req.user!.id) {
-      return next(
-        new AppError({
-          httpCode: HttpCode.FORBIDDEN,
-          description: "User unauthorized.",
-        })
-      );
+    let oldGroup;
+    if (exercise.group && exercise.group.toString() !== "") {
+      oldGroup = await Group.findById(exercise.group, "_id exercises");
     }
-  }
 
-  let oldGroup;
-  if (exercise.group && exercise.group.toString() !== "") {
-    oldGroup = await Group.findById(exercise.group, "_id exercises");
-  }
+    if (newGroup) {
+      newGroup.exercises = [...newGroup.exercises, exercise._id];
+      await newGroup.save();
+    }
 
-  exercise.group = req.body.newGroup !== "" ? req.body.newGroup : null;
-  await exercise.save();
-
-  if (newGroup) {
-    newGroup.exercises = [...newGroup.exercises, exercise._id];
-    await newGroup.save();
-  }
-
-  if (oldGroup) {
-    const index = oldGroup.exercises.indexOf(exercise._id);
-    if (index > -1) {
-      let newArray = [...oldGroup.exercises];
-      newArray.splice(index, 1);
-      oldGroup.exercises = newArray;
+    if (oldGroup) {
+      oldGroup.exercises = removeItemAll(oldGroup.exercises, exercise._id);
       await oldGroup.save();
     }
   }
+
+  // Group is the only property that can be changed by the user
+  exercise.group = req.body.group !== "" ? req.body.group : null;
+  await exercise.save();
 
   res.json();
 };
