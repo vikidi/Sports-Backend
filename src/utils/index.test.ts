@@ -1,5 +1,5 @@
-import { removeItemAll, removeItemOnce, roundTo } from "../../src/utils";
-import { randomMongoId } from "../utils/_helpers";
+import { removeAllOccurrences, removeItemOnce, roundTo } from "./index";
+import { randomMongoId } from "../../tests/utils/_helpers";
 
 describe("removeItemOnce()", () => {
   it("No items to be removed", () => {
@@ -89,14 +89,14 @@ describe("removeItemOnce()", () => {
   });
 });
 
-describe("removeItemAll()", () => {
+describe("removeAllOccurrences()", () => {
   it("No items to be removed", () => {
     // Arrange
     const array = [1, 2, 3];
     const value = 9;
 
     // Act
-    const result = removeItemAll(array, value);
+    const result = removeAllOccurrences(array, value);
 
     // Assert
     expect(result).toEqual(array);
@@ -108,7 +108,7 @@ describe("removeItemAll()", () => {
     const value = 2;
 
     // Act
-    const result = removeItemAll(array, value);
+    const result = removeAllOccurrences(array, value);
 
     // Assert
     expect(result).toEqual([1, 3]);
@@ -120,7 +120,7 @@ describe("removeItemAll()", () => {
     const value = "2";
 
     // Act
-    const result = removeItemAll(array, value);
+    const result = removeAllOccurrences(array, value);
 
     // Assert
     expect(result).toEqual(["1", "3"]);
@@ -134,7 +134,7 @@ describe("removeItemAll()", () => {
     const array = [random1, value, random2];
 
     // Act
-    const result = removeItemAll(array, value);
+    const result = removeAllOccurrences(array, value);
 
     // Assert
     expect(result).toEqual([random1, random2]);
@@ -146,7 +146,7 @@ describe("removeItemAll()", () => {
     const value = 2;
 
     // Act
-    const result = removeItemAll(array, value);
+    const result = removeAllOccurrences(array, value);
 
     // Assert
     expect(result).toEqual([1, 3]);
@@ -158,7 +158,7 @@ describe("removeItemAll()", () => {
     const value = null;
 
     // Act
-    const result = removeItemAll(array, value);
+    const result = removeAllOccurrences(array, value);
 
     // Assert
     expect(result).toEqual(array);
@@ -170,7 +170,7 @@ describe("removeItemAll()", () => {
     const value = null;
 
     // Act
-    const result = removeItemAll(array, value);
+    const result = removeAllOccurrences(array, value);
 
     // Assert
     expect(result).toEqual([1, 2, 3]);

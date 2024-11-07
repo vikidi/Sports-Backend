@@ -1,41 +1,46 @@
 export {}; // This is to combat the TS2451 error
 
-export const roundTo = (n: number, digits: number) => {
-  let negative = false;
-
-  if (Number.isNaN(digits)) {
-    return n.toString();
+/**
+ * Rounds a number to the given number of decimal places.
+ *
+ * @param {number} value - The value to round.
+ * @param {number} decimalPlaces - The number of decimal places to round to.
+ * @returns {string} The rounded value as a string.
+ */
+export const roundTo = (value: number, decimalPlaces: number): string => {
+  if (isNaN(decimalPlaces)) {
+    return value.toString();
   }
 
-  if (n < 0) {
-    negative = true;
-    n = n * -1;
-  }
-  let multiplicator = Math.pow(10, digits);
-  n = parseFloat((n * multiplicator).toFixed(11));
-  n = Math.round(n) / multiplicator;
-  if (negative) {
-    n = n * -1;
-  }
-  return n.toFixed(digits);
+  const multiplier = 10 ** decimalPlaces;
+  const roundedValue = Math.round(value * multiplier) / multiplier;
+  return roundedValue.toFixed(decimalPlaces);
 };
 
-export function removeItemOnce<T>(arr: Array<T>, value: T): Array<T> {
-  let index = arr.indexOf(value);
+/**
+ * Removes the first occurrence of a given element from an array
+ * @template T
+ * @param {Array<T>} array The array from which to remove the element
+ * @param {T} element The element to remove
+ * @returns {Array<T>} The array with the first occurrence of the element removed
+ */
+export function removeItemOnce<T>(array: Array<T>, element: T): Array<T> {
+  const index = array.indexOf(element);
+
   if (index > -1) {
-    arr.splice(index, 1);
+    array.splice(index, 1);
   }
-  return arr;
+
+  return array;
 }
 
-export function removeItemAll<T>(arr: Array<T>, value: T): Array<T> {
-  let i = 0;
-  while (i < arr.length) {
-    if (String(arr[i]) === String(value)) {
-      arr.splice(i, 1);
-    } else {
-      ++i;
-    }
-  }
-  return arr;
+/**
+ * Removes all occurrences of a given element from an array
+ * @template T
+ * @param {Array<T>} array The array from which to remove the element
+ * @param {T} value The element to remove
+ * @returns {Array<T>} The array with the element removed
+ */
+export function removeAllOccurrences<T>(array: Array<T>, value: T): Array<T> {
+  return array.filter((element) => !Object.is(element, value));
 }

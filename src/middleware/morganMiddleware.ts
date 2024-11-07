@@ -12,6 +12,11 @@ const logFormat = `
     "remoteAddress": ":remote-addr"
 }`;
 
+/**
+ * Handles log messages by parsing the message and logging it with additional information.
+ *
+ * @param message - The raw log message string to be processed and logged.
+ */
 function logMessageHandler(message: any) {
   logger.info("HTTP request received", JSON.parse(message.trim()));
 }

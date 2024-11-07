@@ -5,13 +5,13 @@ import Connection from "../models/connection";
 import { calculateHmac } from "../utils/signatures";
 import {
   deleteWebhook,
-  getWebhook,
-  patchWebhookUrl,
+  fetchWebhook,
+  updateWebhookUrl,
   requestWebhook,
 } from "./polarApi";
 
 export const checkPolarApiConnection = async () => {
-  const connectionPolar = (await getWebhook()).data.data;
+  const connectionPolar = (await fetchWebhook()).data.data;
   const connectionDb = await Connection.findById("polar-webhook");
 
   // Connection not found from polar API
@@ -68,7 +68,7 @@ export const checkPolarApiConnection = async () => {
 
     // Update connection in Polar and DB
     else {
-      const patchedConnection = (await patchWebhookUrl(connectionPolar[0].id))
+      const patchedConnection = (await updateWebhookUrl(connectionPolar[0].id))
         .data.data;
 
       await Connection.findByIdAndUpdate("polar-webhook", {
@@ -88,9 +88,7 @@ export const validateRequestSignature = async (
   request: Request
 ): Promise<boolean> => {
   const signatureHeader = request.header("Polar-Webhook-Signature");
-  const connection = await Connection.findById("polar-webhook").select(
-    "signatureSecretKey"
-  );
+  const connection = await Connection.findById("polar-webhook");
 
   if (!signatureHeader || !connection?.signatureSecretKey) {
     return false;
@@ -100,27 +98,4 @@ export const validateRequestSignature = async (
     signatureHeader ===
     calculateHmac(request.body, connection.signatureSecretKey)
   );
-};
-
-/**
- * Validates the request signature sent by Polar in the request headers.
- * @param {Request} request The express request object.
- * @returns {Promise<boolean>} True if the signature is valid, false otherwise.
- */
-export const validateRequestSignature_old = async (
-  request: Request
-): Promise<boolean> => {
-  const signatureHeader = request.header("Polar-Webhook-Signature");
-  const connection = await Connection.findById("polar-webhook");
-
-  if (!connection || !connection.signatureSecretKey) {
-    return false;
-  }
-
-  const calculatedSignature = calculateHmac(
-    request.body,
-    connection.signatureSecretKey
-  );
-
-  return signatureHeader === calculatedSignature;
 };

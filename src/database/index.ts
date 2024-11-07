@@ -3,19 +3,39 @@ export {}; // This is to combat the TS2451 error
 import { connect, connection } from "mongoose";
 import { checkPolarApiConnection } from "../services/polar-webhook";
 
-export function initDatabase() {
-  // Tests will handle database and polar API connection separately
+/**
+ * Initializes the MongoDB connection and verifies the Polar API connection.
+ * Should be called once during application startup.
+ */
+export const initDatabase = (): void => {
   if (process.env.NODE_ENV !== "test") {
-    connect(
-      `${process.env.MONGODB_PREFIX}://${process.env.MONGODB_USER}:${process.env.MONGODB_PASS}@${process.env.MONGODB_URL}/${process.env.MONGODB_DB}?retryWrites=true&w=majority`
-    )
-      .then(() => {
-        checkPolarApiConnection();
-      })
-      .catch((err) => console.log(err));
+    connect(getMongoDbUri())
+      .then(checkPolarApiConnection)
+      .catch(handleConnectionError);
 
-    connection.on("error", (err) => {
-      console.log(err);
-    });
+    connection.on("error", handleConnectionError);
   }
-}
+};
+
+/**
+ * Constructs the MongoDB URI from environment variables.
+ * @returns {string} The MongoDB connection URI.
+ */
+const getMongoDbUri = (): string => {
+  const {
+    MONGODB_PREFIX,
+    MONGODB_USER,
+    MONGODB_PASS,
+    MONGODB_URL,
+    MONGODB_DB,
+  } = process.env;
+  return `${MONGODB_PREFIX}://${MONGODB_USER}:${MONGODB_PASS}@${MONGODB_URL}/${MONGODB_DB}?retryWrites=true&w=majority`;
+};
+
+/**
+ * Handles errors during MongoDB connection.
+ * @param {Error} error The error object.
+ */
+const handleConnectionError = (error: Error): void => {
+  console.error("Database connection error:", error);
+};

@@ -4,7 +4,7 @@ import { Request, Response, NextFunction } from "express";
 import Group from "../models/group";
 import Exercise from "../models/exercise";
 import { createNew } from "../utils/exercise";
-import { removeItemAll } from "../utils";
+import { removeAllOccurrences } from "../utils";
 import { AppError, HttpCode } from "../exceptions/AppError";
 
 export const create = async (
@@ -132,7 +132,10 @@ export const patch = async (
     }
 
     if (oldGroup) {
-      oldGroup.exercises = removeItemAll(oldGroup.exercises, exercise._id);
+      oldGroup.exercises = removeAllOccurrences(
+        oldGroup.exercises,
+        exercise._id
+      );
       await oldGroup.save();
     }
   }
@@ -172,7 +175,7 @@ export const deleteOne = async (
   const group = await Group.findById(exercise.group);
 
   if (group) {
-    group.exercises = removeItemAll(group.exercises, exercise._id);
+    group.exercises = removeAllOccurrences(group.exercises, exercise._id);
     await group.save();
   }
 

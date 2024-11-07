@@ -30,17 +30,24 @@ export class AppError extends Error {
   public readonly httpCode: HttpCode;
   public readonly isOperational: boolean = true;
 
-  constructor(args: AppErrorArgs) {
-    super(args.description);
+  /**
+   * Constructor for AppError.
+   *
+   * @param {AppErrorArgs} params - Parameters used to construct an AppError.
+   */
+  constructor({
+    name = "Error",
+    httpCode,
+    description,
+    isOperational = true,
+  }: AppErrorArgs) {
+    super(description);
 
     Object.setPrototypeOf(this, new.target.prototype);
 
-    this.name = args.name ?? "Error";
-    this.httpCode = args.httpCode;
-
-    if (args.isOperational !== undefined) {
-      this.isOperational = args.isOperational;
-    }
+    this.name = name;
+    this.httpCode = httpCode;
+    this.isOperational = isOperational;
 
     if (process.env.NODE_ENV === "development") {
       Error.captureStackTrace(this);
