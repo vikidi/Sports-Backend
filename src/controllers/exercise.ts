@@ -21,18 +21,50 @@ export const create = async (
     );
   }
 
-  await createNew(req.user!.id, req.file.buffer);
+  if (!req.user?.id) {
+    return next(
+      new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: "User unauthenticated.",
+      })
+    );
+  }
 
-  res.status(HttpCode.NO_CONTENT).json();
+  let createdExercise;
+  try {
+    createdExercise = createNew(req.user.id, req.file.buffer);
+  } catch (error) {
+    return next(error);
+  }
+
+  if (!createdExercise) {
+    return next(
+      new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description: "Unable to create exercise.",
+      })
+    );
+  }
+
+  res.status(HttpCode.CREATED).json(createdExercise);
 };
 
 export const getAll = async (
   req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
+  if (!req.user?.id) {
+    return next(
+      new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: "User unauthenticated.",
+      })
+    );
+  }
+
   const exercise = await Exercise.find(
-    { user: req.user!.id },
+    { user: req.user.id },
     "_id sport startingEpoch parsedDate distanceMeters elapsedSec averageHeartRate averagePace averageCadence averageWatts"
   );
 
@@ -67,8 +99,7 @@ export const getOne = async (
     );
   }
 
-  const { user, ...sendData } = exercise.toObject();
-  res.json(sendData);
+  res.json(exercise);
 };
 
 export const patch = async (

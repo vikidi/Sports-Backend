@@ -58,7 +58,6 @@ const errorFileTransport = new DailyRotateFile({
 
 if (process.env.NODE_ENV === "development") {
   logger.add(consoleTransport);
-  logger.add(combinedFileTransport);
 }
 
 if (process.env.NODE_ENV === "production") {

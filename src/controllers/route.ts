@@ -7,25 +7,42 @@ import { AppError, HttpCode } from "../exceptions/AppError";
 export const create = async (
   req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
+  if (!req.user?.id) {
+    return next(
+      new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: "User unauthenticated.",
+      })
+    );
+  }
+
   const route = await Route.create({
-    user: req.user!.id,
+    user: req.user.id,
     groups: [],
     defaultGroup: null,
   });
 
-  const { user, ...newData } = route;
-  res.json(newData);
+  res.status(HttpCode.CREATED).json(route);
 };
 
 export const getAll = async (
   req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
+  if (!req.user?.id) {
+    return next(
+      new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: "User unauthenticated.",
+      })
+    );
+  }
+
   const route = await Route.find(
-    { user: req.user!.id },
+    { user: req.user.id },
     "groups defaultGroup name description useAutomaticGrouping"
   )
     .populate("groups", "exercises name description")
@@ -80,16 +97,24 @@ export const getOne = async (
     );
   }
 
-  const { user, ...sendData } = route;
-  res.json(sendData);
+  res.json(route);
 };
 
 export const deleteOne = async (
   req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
-  await Route.findOneAndDelete({ _id: req.params.id, user: req.user!.id });
+  if (!req.user?.id) {
+    return next(
+      new AppError({
+        httpCode: HttpCode.UNAUTHORIZED,
+        description: "User unauthenticated.",
+      })
+    );
+  }
+
+  await Route.findOneAndDelete({ _id: req.params.id, user: req.user.id });
 
   // TODO: Group? Exercises?
 

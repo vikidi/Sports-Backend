@@ -65,7 +65,7 @@ class ErrorHandler {
         .json({ message: "Internal server error" });
     }
 
-    logger.crit("Application encountered a critical error.", {
+    logger.error("CRITICAL: Application encountered an error.", {
       user: req.user?.id,
       path: req.path,
       name: error.name,

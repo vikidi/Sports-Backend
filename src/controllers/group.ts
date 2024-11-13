@@ -8,23 +8,38 @@ import { AppError, HttpCode } from "../exceptions/AppError";
 export const create = async (
   req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
+  const route = await Route.findById(req.body.routeId);
+
+  if (!route) {
+    return next(
+      new AppError({
+        httpCode: HttpCode.NOT_FOUND,
+        description: "Route not found.",
+      })
+    );
+  }
+
+  if (route.user !== req.user!.id) {
+    return next(
+      new AppError({
+        httpCode: HttpCode.FORBIDDEN,
+        description: "User unauthorized.",
+      })
+    );
+  }
+
   const group = await Group.create({
     user: req.user!.id,
     route: req.body.routeId.toString(),
     exercises: [],
   });
 
-  const { user, ...createdGroup } = group;
-  const route = await Route.findById(req.body.routeId);
-
-  if (!route!.groups.length) route!.defaultGroup = createdGroup._id;
-  route!.groups.push(createdGroup._id);
-
+  route.groups.push(group._id);
   await route!.save();
 
-  res.json(createdGroup);
+  res.json(group);
 };
 
 export const getAll = async (
@@ -71,8 +86,7 @@ export const getOne = async (
     );
   }
 
-  const { user, ...sendData } = group;
-  res.json(sendData);
+  res.json(group);
 };
 
 export const deleteOne = async (
