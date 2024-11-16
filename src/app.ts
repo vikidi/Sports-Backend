@@ -9,6 +9,8 @@ import BaseRouter from "./routes";
 import { initDatabase } from "./database";
 import morganMiddleware from "./middleware/morganMiddleware";
 
+initDatabase();
+
 const app = express();
 
 app.use(helmet());
@@ -33,9 +35,6 @@ app.use("/api/auth", (req, _, next) => {
 });
 
 app.use("/api", BaseRouter);
-
-// Setup database and polar API connection
-initDatabase();
 
 app.use(errorHandler.handleError);
 

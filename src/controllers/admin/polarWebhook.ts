@@ -1,74 +1,70 @@
-import {
-  activateWebhook,
-  deactivateWebhook,
-  fetchWebhook,
-} from "./../../services/polarApi";
+import { activateWebhook, deactivateWebhook } from "./../../services/polarApi";
 import { Request, Response, NextFunction } from "express";
-import Connection from "../../models/connection";
 import { AppError, HttpCode } from "../../exceptions/AppError";
+import {
+  createPolarWebhookConnection,
+  deletePolarWebhookConnection,
+  getPolarWebhookConnection,
+  updatePolarWebhookConnection,
+} from "../../services/polar-webhook";
 
-export const createWebhookConnection = () => {};
+export const createWebhookConnection = async (
+  _req: Request,
+  res: Response,
+  _next: NextFunction
+) => {
+  const newConnection = await createPolarWebhookConnection();
+  res.status(HttpCode.CREATED).json(newConnection);
+};
 
 export const getWebhookConnection = async (
   _req: Request,
   res: Response,
   _next: NextFunction
 ) => {
-  const [polarWebhook, remoteWebhookResponse] = await Promise.all([
-    Connection.findById("polar-webhook").lean(),
-    fetchWebhook(),
-  ]);
-
-  const remoteWebhook = remoteWebhookResponse.data.data;
-
-  res.json({
-    ...polarWebhook,
-    remoteId: remoteWebhook[0].id,
-    remoteEvents: remoteWebhook[0].events,
-    remoteUrl: remoteWebhook[0].url,
-    active: remoteWebhook[0].active,
-  });
+  const polarWebhook = await getPolarWebhookConnection();
+  res.json(polarWebhook);
 };
 
 export const activateWebhookConnection = async (
   _req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
   const axiosResponse = await activateWebhook();
 
   if (axiosResponse.status === 200) {
     res.json();
-    return;
   } else if (axiosResponse.status === 204) {
     res.status(HttpCode.NOT_FOUND).json();
-    return;
   } else {
-    throw new AppError({
-      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-      description: "Unable to activate Polar webhook.",
-    });
+    return next(
+      new AppError({
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: "Unable to activate Polar webhook.",
+      })
+    );
   }
 };
 
 export const deactivateWebhookConnection = async (
   _req: Request,
   res: Response,
-  _next: NextFunction
+  next: NextFunction
 ) => {
   const axiosResponse = await deactivateWebhook();
 
   if (axiosResponse?.status === 200) {
     res.json();
-    return;
   } else if (axiosResponse?.status === 204) {
     res.status(HttpCode.NOT_FOUND).json();
-    return;
   } else {
-    throw new AppError({
-      httpCode: HttpCode.INTERNAL_SERVER_ERROR,
-      description: "Unable to deactivate Polar webhook.",
-    });
+    return next(
+      new AppError({
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: "Unable to deactivate Polar webhook.",
+      })
+    );
   }
 };
 
@@ -76,10 +72,16 @@ export const updateWebhookConnection = async (
   _req: Request,
   res: Response,
   _next: NextFunction
-) => {};
+) => {
+  const updatedConnection = await updatePolarWebhookConnection();
+  res.status(HttpCode.OK).json(updatedConnection);
+};
 
 export const deleteWebhookConnection = async (
   _req: Request,
   res: Response,
   _next: NextFunction
-) => {};
+) => {
+  await deletePolarWebhookConnection();
+  res.status(HttpCode.NO_CONTENT).json();
+};

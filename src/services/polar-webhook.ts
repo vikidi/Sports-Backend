@@ -9,74 +9,141 @@ import {
   updateWebhookUrl,
   requestWebhook,
 } from "./polarApi";
+import { AppError, HttpCode } from "../exceptions/AppError";
+import { PolarWebhookConnection } from "../common/types";
 
-export const checkPolarApiConnection = async () => {
-  const connectionPolar = (await fetchWebhook()).data.data;
-  const connectionDb = await Connection.findById("polar-webhook");
+export const createPolarWebhookConnection =
+  async (): Promise<PolarWebhookConnection> => {
+    const connectionPolar = (await fetchWebhook()).data.data;
 
-  // Connection not found from polar API
-  if (Array.isArray(connectionPolar) && !connectionPolar.length) {
-    // Delete connection if found from DB
-    if (connectionDb) {
-      await Connection.deleteOne({ _id: "polar-webhook" });
+    if (!Array.isArray(connectionPolar) || connectionPolar.length !== 0) {
+      throw new AppError({
+        httpCode: HttpCode.BAD_REQUEST,
+        description:
+          "Polar webhook connection already exists in Polar's system.",
+      });
     }
 
-    // Request new connection from polar API
+    await Connection.findByIdAndDelete("polar-webhook");
+
     const newConnection = (await requestWebhook()).data.data;
 
-    // Add the new connection to DB
-    await Connection.create({
-      _id: "polar-webhook",
-      externalId: newConnection.id,
-      events: newConnection.events,
-      url: newConnection.url,
-      signatureSecretKey: newConnection.signature_secret_key,
-    });
-  }
-
-  // Connection found from polar API
-  else {
-    // No updating needed
-    if (
-      connectionPolar[0]?.url ===
-        `${process.env.API_URL}/api/public/connections/polar-webhook` &&
-      connectionDb?.url ===
-        `${process.env.API_URL}/api/public/connections/polar-webhook` &&
-      connectionDb?.signatureSecretKey !== null
-    ) {
-      return;
-    }
-
-    // Create new connection to Polar and DB if connection or signature key are not found from DB
-    // This is to get new signature secret, which is only received while creating new connection
-    if (!connectionDb?.signatureSecretKey) {
-      // Delete old connection from Polar
-      await deleteWebhook(connectionPolar[0].id);
-
-      // Request new connection from Polar API
-      const newConnection = (await requestWebhook()).data.data;
-
-      // Add the new connection to DB
+    const polarWebhook = (
       await Connection.create({
         _id: "polar-webhook",
         externalId: newConnection.id,
         events: newConnection.events,
         url: newConnection.url,
         signatureSecretKey: newConnection.signature_secret_key,
+      })
+    ).toObject();
+
+    return {
+      ...polarWebhook,
+      remoteId: newConnection.id,
+      remoteEvents: newConnection.events,
+      remoteUrl: newConnection.url,
+      active: true,
+    };
+  };
+
+/**
+ * Retrieves the Polar webhook connection from both the local database and the
+ * Polar API and returns both. If the connection does not exist in the local
+ * database, it throws an error.
+ *
+ * @throws {AppError} If the connection does not exist in the local database.
+ *
+ * @returns {Promise<PolarWebhookConnection>} The webhook connection with remote
+ * and local data.
+ */
+export const getPolarWebhookConnection =
+  async (): Promise<PolarWebhookConnection> => {
+    const [localConnection, remoteConnection] = await Promise.all([
+      Connection.findById("polar-webhook").lean(),
+      fetchWebhook(),
+    ]);
+
+    if (!localConnection) {
+      throw new AppError({
+        httpCode: HttpCode.NOT_FOUND,
+        description: "Polar webhook connection not found.",
       });
     }
 
-    // Update connection in Polar and DB
-    else {
-      const patchedConnection = (await updateWebhookUrl(connectionPolar[0].id))
-        .data.data;
+    return {
+      ...localConnection,
+      remoteId: remoteConnection.data.data[0].id,
+      remoteEvents: remoteConnection.data.data[0].events,
+      remoteUrl: remoteConnection.data.data[0].url,
+      active: remoteConnection.data.data[0].active,
+    };
+  };
 
-      await Connection.findByIdAndUpdate("polar-webhook", {
-        events: patchedConnection.events,
-        url: patchedConnection.url,
+export const updatePolarWebhookConnection =
+  async (): Promise<PolarWebhookConnection> => {
+    const [connectionPolar, connectionDb] = await Promise.all([
+      fetchWebhook(),
+      Connection.findById("polar-webhook").lean(),
+    ]);
+
+    const polarConnectionData = connectionPolar.data.data;
+
+    if (
+      polarConnectionData[0]?.url ===
+        `${process.env.API_URL}/api/public/connections/polar-webhook` &&
+      connectionDb?.url ===
+        `${process.env.API_URL}/api/public/connections/polar-webhook`
+    ) {
+      return {
+        ...connectionDb,
+        remoteId: polarConnectionData[0].id,
+        remoteEvents: polarConnectionData[0].events,
+        remoteUrl: polarConnectionData[0].url,
+        active: polarConnectionData[0].active,
+      };
+    }
+
+    const patchedConnectionPolar = (
+      await updateWebhookUrl(polarConnectionData[0].id)
+    ).data.data;
+
+    const patchedConnectionDb = await Connection.findByIdAndUpdate(
+      "polar-webhook",
+      {
+        events: patchedConnectionPolar.events,
+        url: patchedConnectionPolar.url,
+      },
+      { returnDocument: "after", lean: true }
+    );
+
+    if (!patchedConnectionDb) {
+      throw new AppError({
+        httpCode: HttpCode.INTERNAL_SERVER_ERROR,
+        description: "Failed to update webhook connection.",
       });
     }
-  }
+
+    return {
+      ...patchedConnectionDb,
+      remoteId: patchedConnectionPolar[0].id,
+      remoteEvents: patchedConnectionPolar[0].events,
+      remoteUrl: patchedConnectionPolar[0].url,
+      active: patchedConnectionPolar[0].active,
+    };
+  };
+
+/**
+ * Deletes the Polar webhook connection from both the local database and
+ * the Polar API.
+ *
+ * @throws {AppError} If the deletion process fails.
+ */
+export const deletePolarWebhookConnection = async (): Promise<void> => {
+  await Promise.all([
+    Connection.findByIdAndDelete("polar-webhook"),
+    deleteWebhook("polar-webhook"),
+  ]);
 };
 
 /**

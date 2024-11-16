@@ -1,17 +1,15 @@
 export {}; // This is to combat the TS2451 error
 
 import { connect, connection } from "mongoose";
-import { checkPolarApiConnection } from "../services/polar-webhook";
+import logger from "../services/logger";
 
 /**
- * Initializes the MongoDB connection and verifies the Polar API connection.
+ * Initializes the MongoDB connection.
  * Should be called once during application startup.
  */
 export const initDatabase = (): void => {
   if (process.env.NODE_ENV !== "test") {
-    connect(getMongoDbUri())
-      .then(checkPolarApiConnection)
-      .catch(handleConnectionError);
+    connect(getMongoDbUri()).catch(handleConnectionError);
 
     connection.on("error", handleConnectionError);
   }
@@ -37,5 +35,5 @@ const getMongoDbUri = (): string => {
  * @param {Error} error The error object.
  */
 const handleConnectionError = (error: Error): void => {
-  console.error("Database connection error:", error);
+  logger.error("Database connection error:", error);
 };
