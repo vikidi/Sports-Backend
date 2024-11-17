@@ -49,8 +49,6 @@ export class AppError extends Error {
     this.httpCode = httpCode;
     this.isOperational = isOperational;
 
-    if (process.env.NODE_ENV === "development") {
-      Error.captureStackTrace(this);
-    }
+    Error.captureStackTrace(this);
   }
 }

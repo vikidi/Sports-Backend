@@ -140,10 +140,17 @@ export const updatePolarWebhookConnection =
  * @throws {AppError} If the deletion process fails.
  */
 export const deletePolarWebhookConnection = async (): Promise<void> => {
-  await Promise.all([
-    Connection.findByIdAndDelete("polar-webhook"),
-    deleteWebhook("polar-webhook"),
-  ]);
+  const webhook = await Connection.findById("polar-webhook");
+
+  if (!webhook) {
+    throw new AppError({
+      httpCode: HttpCode.NOT_FOUND,
+      description: "Polar webhook not found from database.",
+    });
+  }
+
+  await deleteWebhook(webhook.externalId);
+  await Connection.findById("polar-webhook");
 };
 
 /**

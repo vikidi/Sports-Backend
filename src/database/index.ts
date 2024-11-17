@@ -2,6 +2,7 @@ export {}; // This is to combat the TS2451 error
 
 import { connect, connection } from "mongoose";
 import logger from "../services/logger";
+import Connection from "../models/connection";
 
 /**
  * Initializes the MongoDB connection.
@@ -9,9 +10,25 @@ import logger from "../services/logger";
  */
 export const initDatabase = (): void => {
   if (process.env.NODE_ENV !== "test") {
-    connect(getMongoDbUri()).catch(handleConnectionError);
+    connect(getMongoDbUri())
+      .then(() => updateLocalWebhookData())
+      .catch(handleConnectionError);
 
     connection.on("error", handleConnectionError);
+  }
+};
+
+const updateLocalWebhookData = async (): Promise<void> => {
+  const webhook = await Connection.findById("polar-webhook");
+
+  if (!webhook) return;
+
+  if (
+    webhook.url !==
+    `${process.env.API_URL}/api/public/connections/polar-webhook`
+  ) {
+    webhook.url = `${process.env.API_URL}/api/public/connections/polar-webhook`;
+    await webhook.save();
   }
 };
 

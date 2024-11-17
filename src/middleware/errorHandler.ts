@@ -46,11 +46,12 @@ class ErrorHandler {
       .status(error.httpCode)
       .json({ name: error.name, message: error.message });
 
-    logger.error("Application error", {
+    logger.error("Application error.", {
       user: req.user?.id,
       path: req.path,
       name: error.name,
       message: error.message,
+      stack: error.stack,
     });
   };
 
@@ -70,6 +71,7 @@ class ErrorHandler {
       path: req.path,
       name: error.name,
       message: error.message,
+      stack: error.stack,
     });
   };
 
