@@ -7,6 +7,7 @@ import {
   getPolarWebhookConnection,
   updatePolarWebhookConnection,
 } from "../../services/polar-webhook";
+import Connection from "../../models/connection";
 
 export const createWebhookConnection = async (
   _req: Request,
@@ -34,6 +35,12 @@ export const activateWebhookConnection = async (
   const axiosResponse = await activateWebhook();
 
   if (axiosResponse.status === 200) {
+    await Connection.findByIdAndUpdate(
+      "polar-webhook",
+      { updatedAt: Date.now() },
+      { timestamps: false }
+    );
+
     res.json();
   } else if (axiosResponse.status === 204) {
     res.status(HttpCode.NOT_FOUND).json();
@@ -55,6 +62,12 @@ export const deactivateWebhookConnection = async (
   const axiosResponse = await deactivateWebhook();
 
   if (axiosResponse?.status === 200) {
+    await Connection.findByIdAndUpdate(
+      "polar-webhook",
+      { updatedAt: Date.now() },
+      { timestamps: false }
+    );
+
     res.json();
   } else if (axiosResponse?.status === 204) {
     res.status(HttpCode.NOT_FOUND).json();
