@@ -16,3 +16,5 @@ const connectionSchema = new Schema(
 const Connection = model("Connection", connectionSchema);
 
 export default Connection;
+
+export type ConnectionDocument = ReturnType<(typeof Connection)["hydrate"]>;

@@ -1,7 +1,7 @@
 export {}; // This is to combat the TS2451 error
 
 import { Request } from "express";
-import Connection from "../models/connection";
+import Connection, { ConnectionDocument } from "../models/connection";
 import { calculateHmac } from "../utils/signatures";
 import {
   deleteWebhook,
@@ -10,7 +10,11 @@ import {
   requestWebhook,
 } from "./polarApi";
 import { AppError, HttpCode } from "../exceptions/AppError";
-import { PolarWebhookConnection } from "../common/types";
+import {
+  AxiosPolarWebhookConnection,
+  PolarWebhookConnection,
+} from "../common/types";
+import { AxiosResponse } from "axios";
 
 export const createPolarWebhookConnection =
   async (): Promise<PolarWebhookConnection> => {
@@ -39,11 +43,13 @@ export const createPolarWebhookConnection =
     ).toObject();
 
     return {
-      ...polarWebhook,
-      remoteId: newConnection.id,
-      remoteEvents: newConnection.events,
-      remoteUrl: newConnection.url,
-      active: true,
+      local: { ...polarWebhook },
+      remote: {
+        id: newConnection.id,
+        events: newConnection.events,
+        url: newConnection.url,
+        active: true,
+      },
     };
   };
 
@@ -58,25 +64,20 @@ export const createPolarWebhookConnection =
  * and local data.
  */
 export const getPolarWebhookConnection =
-  async (): Promise<PolarWebhookConnection> => {
-    const [localConnection, remoteConnection] = await Promise.all([
-      Connection.findById("polar-webhook").lean(),
-      fetchWebhook(),
-    ]);
-
-    if (!localConnection) {
-      throw new AppError({
-        httpCode: HttpCode.NOT_FOUND,
-        description: "Polar webhook connection not found.",
-      });
+  async (): Promise<PolarWebhookConnection | null> => {
+    let localConnection: ConnectionDocument | null = null;
+    try {
+      localConnection = await Connection.findById("polar-webhook");
+    } catch {
+      /* Do nothing */
     }
 
+    const remoteConnection: AxiosResponse<AxiosPolarWebhookConnection> =
+      await fetchWebhook();
+
     return {
-      ...localConnection,
-      remoteId: remoteConnection.data.data[0].id,
-      remoteEvents: remoteConnection.data.data[0].events,
-      remoteUrl: remoteConnection.data.data[0].url,
-      active: remoteConnection.data.data[0].active,
+      local: localConnection,
+      remote: remoteConnection?.data?.data[0] ?? null,
     };
   };
 
@@ -96,11 +97,13 @@ export const updatePolarWebhookConnection =
         `${process.env.API_URL}/api/public/connections/polar-webhook`
     ) {
       return {
-        ...connectionDb,
-        remoteId: polarConnectionData[0].id,
-        remoteEvents: polarConnectionData[0].events,
-        remoteUrl: polarConnectionData[0].url,
-        active: polarConnectionData[0].active,
+        local: { ...connectionDb },
+        remote: {
+          id: polarConnectionData[0].id,
+          events: polarConnectionData[0].events,
+          url: polarConnectionData[0].url,
+          active: polarConnectionData[0].active,
+        },
       };
     }
 
@@ -125,11 +128,13 @@ export const updatePolarWebhookConnection =
     }
 
     return {
-      ...patchedConnectionDb,
-      remoteId: patchedConnectionPolar[0].id,
-      remoteEvents: patchedConnectionPolar[0].events,
-      remoteUrl: patchedConnectionPolar[0].url,
-      active: patchedConnectionPolar[0].active,
+      local: { ...patchedConnectionDb },
+      remote: {
+        id: patchedConnectionPolar[0].id,
+        events: patchedConnectionPolar[0].events,
+        url: patchedConnectionPolar[0].url,
+        active: patchedConnectionPolar[0].active,
+      },
     };
   };
 
